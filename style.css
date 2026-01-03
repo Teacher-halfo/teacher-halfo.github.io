@@ -1,0 +1,295 @@
+@font-face {
+    font-family: 'MyPixelFont';
+    src: url('fonts/pixel-font.ttf') format('truetype');
+}
+
+
+:root {
+    --black: #1a1a1a;
+    --brand-yellow: #f4d14e;
+    --stone-grey: #d1d1d1;
+    --earth-white: #fdfaf1;
+    --pixel-font: 'MyPixelFont';
+}
+
+/* 1. GLOBAL RESET */
+body {
+    background-color: var(--earth-white);
+    border: 12px solid var(--black); /* This frames the entire browser window */
+    min-height: 100vh;
+}
+
+.pixel-font { font-family: var(--pixel-font) !important; }
+
+/* 2. NAVIGATION */
+.navbar {
+    background: var(--black);
+    padding: 15px;
+    border-bottom: 4px solid var(--brand-yellow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-links {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.nav-links a:hover { color: var(--brand-yellow); }
+
+/* 3. HERO & DIALOGUE */
+.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.avatar-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.hero-avatar {
+    width: 80px;
+    height: 80px;
+    image-rendering: pixelated; /* Keeps your pixel art sharp! */
+}
+
+.dialogue-bubble {
+    background: white;
+    border: 4px solid var(--black);
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.1); /* Soft shadow for depth */
+    padding: 20px;
+    border-radius: 0px; /* Keep it sharp and retro */
+}
+
+.main-logo {
+    max-width: 300px;
+    height: auto;
+}
+
+/* 4. STAGE SELECT GRID */
+.stage-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+}
+
+.stage-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.stage-card img {
+    width: 100px; /* Adjust based on your Aseprite export size */
+    height: auto;
+    image-rendering: pixelated;
+    border: 4px solid var(--black);
+    background: white; /* Optional: adds a 'card' look behind the icon */
+    padding: 10px;
+    box-shadow: 3px 3px 0px var(--black);
+}
+
+.stage-card:hover {
+    transform: translateY(-8px);
+}
+
+.stage-card:hover img {
+    border-color: var(--brand-yellow);
+    box-shadow: 8px 8px 0px var(--brand-yellow);
+}
+
+.icon-label {
+    margin-top: 15px;
+    color: var(--black);
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+
+/* 5. SECTIONS & BUTTONS */
+.section { padding: 50px 20px; text-align: center; }
+.alt-bg { background-color: var(--stone-grey); }
+
+.guild-btn {
+    display: inline-block;
+    background: var(--brand-yellow);
+    padding: 20px;
+    border: 4px solid var(--black);
+    box-shadow: 6px 6px 0px var(--black);
+    transition: 0.2s;
+}
+
+.guild-btn:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px var(--black); }
+
+.inline-icon { width: 40px; vertical-height: middle; }
+
+.about-section {
+    padding: 100px 20px;
+    background-color: var(--earth-white);
+}
+
+.alt-bg { background-color: var(--stone-grey); }
+
+.about-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column; /* Mobile first */
+    gap: 50px;
+    align-items: center;
+}
+
+/* THE LEFT SIDE (IMAGE) */
+.about-image-side {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.pixel-frame {
+    background: var(--brand-yellow);
+    padding: 20px;
+    border: 4px solid var(--black);
+    box-shadow: 12px 12px 0px var(--black);
+    border-radius: 20px; /* Mimics the rounded look in your reference */
+}
+
+.about-portrait {
+    max-width: 300px;
+    height: auto;
+    image-rendering: pixelated;
+    display: block;
+}
+
+/* THE RIGHT SIDE (TEXT) */
+.about-text-side {
+    flex: 1;
+    text-align: left;
+}
+
+.section-label {
+    color: var(--brand-yellow);
+    background: var(--black);
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.headline {
+    font-size: 2rem;
+    line-height: 1.2;
+    margin-bottom: 25px;
+    color: var(--black);
+}
+
+.about-description {
+    font-family: var(--pixel-font), monospace; 
+    font-size: 18px;                           
+    line-height: 1.6;                          
+    margin-bottom: 20px;                       
+    color: var(--black);    
+}
+
+.bio-label {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    border-bottom: 3px solid var(--brand-yellow);
+    display: inline-block;
+}
+
+.bio-list {
+    list-style: none;
+    padding: 0;
+}
+
+.bio-list li {
+    margin-bottom: 18px;
+    font-family: var(--pixel-font), monospace;
+    position: relative;
+    padding-left: 20px;
+}
+
+/* The Yellow Bullet Points */
+.bio-list li::before {
+    content: "●";
+    color: var(--brand-yellow);
+    position: absolute;
+    left: 0;
+    font-size: 1.2rem;
+}
+
+.bio-list li span {
+    color: var(--black);
+}
+
+/* DESKTOP VIEW: SCREEN DIVISION */
+@media (min-width: 850px) {
+    .about-container {
+        flex-direction: row; /* Split screen */
+        text-align: left;
+    }
+}
+
+/* DESKTOP ADAPTATION */
+@media (min-width: 900px) {
+    .hero { flex-direction: row; justify-content: space-between; }
+    .avatar-container:last-of-type { flex-direction: row; }
+}
+
+/* FIXING BLANK SPACE & DESCRIPTION */
+.description {
+    max-width: 800px; /* Wider for better reading on desktop */
+    margin: 0 auto 40px auto;
+    text-align: center;
+}
+
+p, .description, .about-description {
+    font-family: var(--pixel-font), monospace !important;
+    font-size: 1.1rem !important; /* Standardized across the whole site */
+    line-height: 1.8;
+    color: var(--black);
+}
+
+/* Ensure the Discord section stands out */
+.alt-bg {
+    background-color: var(--stone-grey);
+    border-top: 4px solid var(--black);
+    border-bottom: 4px solid var(--black);
+}
+
+{
+    box-sizing: border-box;
+}
+
+/* CAL.COM PIXEL FRAME */
+#cal-embed {
+    background: white;
+    border: 6px solid var(--black);
+    box-shadow: 10px 10px 0px var(--brand-yellow);
+    padding: 10px;
+    max-width: 900px;
+    margin: 0 auto;
+}
