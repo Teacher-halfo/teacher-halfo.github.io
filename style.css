@@ -273,6 +273,12 @@ p, .description, .about-description {
     color: var(--black);
 }
 
+p2 {
+    font-family: var(--pixel-font), monospace !important;
+    font-size: 1.1rem !important; /* Standardized across the whole site */
+    line-height: 1.3;
+    color: var(--black);
+
 /* Ensure the Discord section stands out */
 .alt-bg {
     background-color: var(--stone-grey);
@@ -292,4 +298,5 @@ p, .description, .about-description {
     padding: 10px;
     max-width: 900px;
     margin: 0 auto;
+
 }
