@@ -35,31 +35,71 @@
         .lp-hero-sub { color: var(--mist); font-size: 1.05rem; line-height: 1.55; margin: 0 0 24px; }
         .lp-hero-sub strong { color: var(--parchment); }
 
-        /* slot de vídeo 16:9 — Heitor + cortes da LAC (placeholder).
-           Troque o bloco .video-slot por um <iframe> do YouTube/Vimeo ou um <video>. */
+        /* vídeo vertical — Heitor + cortes da LAC */
+        .video-wrap { position: relative; line-height: 0; }
         .video-slot {
-            position: relative; width: 100%; aspect-ratio: 16 / 9;
+            position: relative; width: 100%; aspect-ratio: 9 / 16;
             background:
                 radial-gradient(ellipse at 50% 45%, rgba(230,168,23,0.18), transparent 60%),
                 linear-gradient(180deg, #211d18 0%, #0F0D0A 100%);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 12px; cursor: pointer; color: var(--mist);
+            display: block; color: var(--mist); cursor: pointer;
         }
-        .video-slot .play-btn {
-            width: 64px; height: 64px; border: 3px solid var(--brand-yellow);
-            background: rgba(26,23,20,0.6); display: flex; align-items: center; justify-content: center;
-            box-shadow: 5px 5px 0 var(--ink);
-        }
-        .video-slot .play-btn::after {
-            content: ""; width: 0; height: 0;
-            border-top: 14px solid transparent; border-bottom: 14px solid transparent;
-            border-left: 22px solid var(--brand-yellow); margin-left: 6px;
-        }
-        .video-slot .vs-label { font-family: var(--pixel-font); font-size: 0.8rem; letter-spacing: 0.04em; }
-        .video-slot .vs-note { font-size: 0.78rem; color: var(--phosphor-d); }
 
         .post-video-cue { text-align:center; color: var(--mist); font-family: var(--pixel-font); font-size: 0.85rem; margin: 22px 0 0; }
         .post-video-cue .accent { color: var(--sun); }
+
+        /* ===== VSL GATE — a oferta trava até o vídeo chegar na parte da LAC ===== */
+        .lock-veil { display: none; }
+        .gated { position: relative; }
+        .gated .vsl-content { filter: blur(7px); opacity: 0.5; pointer-events: none; user-select: none; }
+        .gated .lock-veil {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 12px; text-align: center; padding: 24px;
+            position: absolute; inset: 0; z-index: 5;
+            background: rgba(245,239,224,0.45);
+        }
+        .lock-veil .lock-badge {
+            font-family: var(--pixel-font); color: var(--brand-yellow);
+            background: var(--ink); border: 2px solid var(--brand-yellow);
+            box-shadow: 5px 5px 0 var(--ink); padding: 14px 18px; font-size: 0.95rem;
+            letter-spacing: 0.04em;
+        }
+        .lock-veil .lock-sub { font-family: var(--pixel-font); color: var(--moss); font-size: 0.8rem; }
+        .vsl-content { transition: filter 0.6s ease, opacity 0.6s ease; }
+
+        /* ===== AUTOPLAY MUDO: botão "ativar som" dentro da barra do terminal ===== */
+        .bar-unmute {
+            margin-left: auto; cursor: pointer; white-space: nowrap;
+            font-family: var(--pixel-font); font-size: 0.6rem; letter-spacing: 0.02em;
+            color: var(--ink); background: var(--brand-yellow);
+            border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+            padding: 5px 8px;
+        }
+        .bar-unmute.is-hidden { display: none; }
+
+        /* ===== BANNER DE FIM DE VÍDEO (aparece quando o vídeo termina) ===== */
+        .video-end {
+            position: absolute; inset: 0; z-index: 6; display: none;
+            flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+            text-align: center; padding: 22px;
+            background: linear-gradient(180deg, rgba(15,13,10,0.82), rgba(15,13,10,0.93));
+            color: var(--parchment);
+        }
+        .video-end.is-on { display: flex; }
+        .video-end .ve-title {
+            font-family: var(--pixel-font); color: var(--brand-yellow);
+            font-size: 0.95rem; line-height: 1.45; letter-spacing: 0.02em; margin: 0;
+        }
+        .video-end .ve-cta {
+            font-family: var(--pixel-font); cursor: pointer; text-decoration: none;
+            color: var(--ink); background: var(--brand-yellow);
+            border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
+            padding: 11px 16px; font-size: 0.82rem; letter-spacing: 0.02em;
+        }
+        .video-end .ve-replay {
+            font-family: var(--pixel-font); cursor: pointer; background: none; border: 0;
+            color: var(--mist); font-size: 0.72rem; text-decoration: underline; padding: 0;
+        }
     </style>
 </head>
 <body>
@@ -75,42 +115,48 @@
     <div class="hero-bg" aria-hidden="true"><div class="hero-scanlines"></div></div>
 
     <div class="container narrow" style="position:relative; z-index:1; text-align:center;">
-        <span class="lp-eyebrow">› você veio do anúncio. então deixa eu te mostrar:</span>
+        <span class="lp-eyebrow">› você já entendeu que fluência não é estudar.</span>
 
         <h1 class="hero-headline pixel-font lp-hero-headline">
-            "Aprender inglês" e <span class="accent">"ter fluência"</span><br>não são a mesma coisa.
+            Aprender inglês é estudar pra o que você <span class="accent">nunca</span> vai usar, se você já não está usando ele hoje.
         </h1>
         <p class="hero-sub lp-hero-sub">
-            E eu não quero te <strong>explicar</strong> a diferença — quero te <strong>mostrar</strong>.
-            Aperta o play: em 2 minutos você entende por que você trava, e o que fazer a partir de hoje.
+            E é isso que eu quero te <strong>mostrar</strong>: Por que ainda não deu certo, o por que você trava, e o que fazer a partir de hoje.
         </p>
 
-        <!-- ====================================================================
-             VÍDEO HERO  —  Heitor + cortes de atividades reais da LAC.
-             SUBSTITUA este bloco .video-slot pelo embed real, ex.:
-             <iframe width="100%" style="aspect-ratio:16/9;border:0"
-                src="https://www.youtube.com/embed/SEU_ID" allowfullscreen></iframe>
-             (com a YouTube IFrame API dá pra revelar os planos quando o vídeo acabar.)
-             ==================================================================== -->
-        <div class="terminal-window" style="max-width:680px; margin:0 auto;">
-            <div class="terminal-bar">
+        <!-- VÍDEO HERO: toca sozinho (mudo); botão na barra liga o som; ao fim, banner de CTA.
+             Vídeo em  assets/a-diferenca.mp4  — carrega sozinho, sem YouTube. -->
+        <div class="terminal-window" style="max-width:330px; margin:0 auto;">
+            <div class="terminal-bar" style="flex-wrap:wrap;">
                 <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
-                <span class="terminal-title">teacher_heitor/a-diferenca.mp4</span>
+                <button type="button" class="bar-unmute" id="unmuteBtn">🔊 toque para ativar o som</button>
             </div>
-            <div class="video-slot" id="videoSlot" data-umami-event="hero_video_play" role="button" aria-label="Tocar o vídeo do Heitor">
-                <div class="play-btn" aria-hidden="true"></div>
-                <span class="vs-label">▶ a diferença, em 2 minutos</span>
-                <span class="vs-note">[ placeholder — Heitor + cortes das atividades da LAC ]</span>
+            <div class="video-wrap" id="videoWrap">
+                <video class="video-slot" id="heroVideo" controls playsinline autoplay muted preload="auto"
+                       style="object-fit:cover;"
+                       onplay="window.umami && umami.track('hero_video_play')">
+                    <source src="assets/a-diferenca.mp4" type="video/mp4">
+                    Seu navegador não suporta vídeo embutido.
+                </video>
+                <div class="video-end" id="videoEnd" aria-hidden="true">
+                    <p class="ve-title">Agora você já sabe a diferença.<br>Estudar inglês e viver o inglês de verdade, não são a mesma coisa</p>
+                    <a href="#planos" class="ve-cta" data-umami-event="end_banner_cta">› Entrar no LAC</a>
+                    <button type="button" class="ve-replay" id="replayBtn">↻ assistir de novo</button>
+                </div>
             </div>
         </div>
 
-        <p class="post-video-cue">↓ viu a diferença? <span class="accent">é assim que você começa hoje:</span></p>
+        <p class="post-video-cue" id="postCue">↓ Quer saber como você começa?</p>
     </div>
 </header>
 
 <!-- ==================== OS PLANOS (iguais aos do site) ==================== -->
 <section id="planos" class="section section-parchment">
-    <div class="container">
+    <div class="lock-veil" aria-hidden="true">
+        <div class="lock-badge pixel-font">🔒 continue assistindo pra liberar</div>
+        <div class="lock-sub pixel-font" id="lockSub">a oferta abre na parte da LAC do vídeo</div>
+    </div>
+    <div class="container vsl-content">
         <div class="section-header" style="text-align:center;">
             <span class="section-label pixel-font">› e agora, o próximo passo:</span>
         </div>
@@ -118,21 +164,38 @@
             Um lugar pra finalmente USAR o seu inglês.<br><span class="dim-text">No seu tempo, sem gramatiquinha.</span>
         </h2>
 
-        <div class="biome-grid" style="max-width:420px; margin:0 auto;">
+        <div class="biome-grid" style="max-width:740px; margin:0 auto;">
 
-            <!-- LAC — COMUNIDADE PAGA (a conversão) -->
+            <!-- LAC MENSAL — entrada -->
             <article class="biome-card">
-                <h3 class="biome-title pixel-font">LAC</h3>
+                <h3 class="biome-title pixel-font">LAC · mensal</h3>
                 <p class="biome-subtitle pixel-font">— Language Acquisition Club —</p>
                 <p class="biome-price body-font">R$ 49,90 <span class="biome-period">/mês</span></p>
                 <ul class="biome-list">
-                    <li>O lugar pra adquirir o inglês como uma ferramenta.</li>
-                    <li>Classroom com uma trilha de aprendizado pra usar o inglês hoje.</li>
-                    <li>Atividades semanais pra trabalhar o inglês em todos os sentidos.</li>
-                    <li>Lista de espera pras vagas de Conversation Classes!</li>
+                    <li>Atividades guiadas toda semana — você não pensa no que praticar, eu já deixo pronto.</li>
+                    <li>Um tema novo por semana, do que tá rolando lá fora.</li>
+                    <li>Comunidade no Discord pra praticar com gente no mesmo barco que você.</li>
+                    <li>Classroom com a trilha pra usar o inglês que você já tem.</li>
                 </ul>
-                <p class="biome-pitch">O jeito mais tranquilo de adquirir vivência com o inglês. Pra quem precisa do compromisso, mas não tem o tempo.</p>
-                <a href="https://buy.stripe.com/fZu4gAd9Y3hodQjbEabfO04" class="btn-secondary biome-cta pixel-font" target="_blank" rel="noopener" data-umami-event="lac_checkout">› Consiga seu acesso aqui</a>
+                <p class="biome-pitch">Pra começar hoje, no seu tempo, sem gramatiquinha. Cancela quando quiser.</p>
+                <a href="https://buy.stripe.com/fZu4gAd9Y3hodQjbEabfO04" class="btn-secondary biome-cta pixel-font" target="_blank" rel="noopener" data-umami-event="lac_checkout_mensal">› Começar no mês a mês</a>
+                <p class="biome-fineprint">Pagamento seguro via Stripe · Cartão / Pix</p>
+            </article>
+
+            <!-- LAC ANUAL — destaque (2 meses grátis) -->
+            <article class="biome-card biome-featured">
+                <h3 class="biome-title pixel-font">LAC · 1 ano</h3>
+                <p class="biome-subtitle pixel-font">— 2 meses grátis —</p>
+                <p class="biome-price body-font">R$ 499,90 <span class="biome-period">/ano</span></p>
+                <p class="biome-price-alt body-font">≈ R$ 41,65/mês · 12 meses pelo preço de 10</p>
+                <ul class="biome-list">
+                    <li>Tudo do plano mensal, o ano inteiro.</li>
+                    <li>Todos os contextos do ano — dezenas de temas de atualidade pra usar o inglês.</li>
+                    <li>A newsletter junto: o que tá sendo discutido lá fora, toda semana.</li>
+                    <li>2 meses de graça — você economiza quase R$100.</li>
+                </ul>
+                <p class="biome-pitch">Pra quem já decidiu que vai viver o inglês de verdade — e quer o caminho inteiro de uma vez.</p>
+                <a href="https://buy.stripe.com/00waEY4Ds5pw4fJcIebfO08" class="btn-primary biome-cta pixel-font" target="_blank" rel="noopener" data-umami-event="lac_checkout_anual">› Pegar o ano com 2 meses grátis</a>
                 <p class="biome-fineprint">Pagamento seguro via Stripe · Cartão / Pix</p>
             </article>
 
@@ -140,44 +203,7 @@
     </div>
 </section>
 
-<!-- ==================== PROVA VIVA (curta) ==================== -->
-<section id="prova" class="section section-dark">
-    <div class="container">
-        <div class="section-header" style="text-align:center;">
-            <span class="section-label-dark pixel-font">› não é só você:</span>
-        </div>
-        <div class="testimonial-grid">
-            <article class="terminal-window testimonial-card">
-                <div class="terminal-bar">
-                    <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
-                    <span class="terminal-title">student/sylvio.log</span>
-                </div>
-                <div class="terminal-body">
-                    <p class="t-meta pixel-font"><span class="prompt">›</span> NAME · Sylvio M.</p>
-                    <p class="t-meta pixel-font"><span class="prompt">›</span> DESCRIPTION · 60+ Years Old</p>
-                    <p class="t-meta pixel-font"><span class="prompt">›</span> RESULT · Conversa com nativos tranquilo em menos de 2 anos</p>
-                    <hr class="t-rule">
-                    <p class="t-quote">"Eu achava que precisava estudar um monte de coisa, mas o heitor me ajudou a me comunicar desde o primeiro dia de aula."</p>
-                    <p class="t-tag pixel-font">› 1-on-1 Class</p>
-                </div>
-            </article>
-            <article class="terminal-window testimonial-card">
-                <div class="terminal-bar">
-                    <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
-                    <span class="terminal-title">student/henrique.log</span>
-                </div>
-                <div class="terminal-body">
-                    <p class="t-meta pixel-font"><span class="prompt">›</span> NAME · Henrique S.</p>
-                    <p class="t-meta pixel-font"><span class="prompt">›</span> DESCRIPTION · Started from 0</p>
-                    <p class="t-meta pixel-font"><span class="prompt">›</span> RESULT · Conversação 100% em inglês em menos de 6 meses</p>
-                    <hr class="t-rule">
-                    <p class="t-quote">"Antes eu ficava meio perdido, mas o heitor me ensinou a compreender de verdade."</p>
-                    <p class="t-tag pixel-font">› Language Acquisition Class</p>
-                </div>
-            </article>
-        </div>
-    </div>
-</section>
+<!-- (seção de depoimentos removida — a prova agora vive nos cortes do vídeo) -->
 
 <!-- ==================== FOOTER ==================== -->
 <footer class="site-footer">
@@ -192,6 +218,79 @@
     <svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     <span>Falar com o Heitor</span>
 </a>
+
+<!-- ==================== VSL GATE: libera a oferta após X segundos de vídeo ==================== -->
+<script>
+(function(){
+    var video = document.getElementById('heroVideo');
+    var gate  = document.getElementById('planos');
+    var cue   = document.getElementById('postCue');
+    var sub   = document.getElementById('lockSub');
+    if (!video || !gate) return;
+
+    // AJUSTE AQUI: o segundo em que VOCÊ entra na LAC/comunidade no corte final.
+    var UNLOCK_AT = 78;
+
+    var maxWatched = 0, unlocked = false;
+    gate.classList.add('gated');   // sem JS, a oferta aparece normal (fail-safe)
+
+    function unlock(){
+        if (unlocked) return;
+        unlocked = true;
+        gate.classList.remove('gated');
+        if (cue) cue.innerHTML = '↓ <span class="accent">é assim que você começa hoje:</span>';
+        try { if (window.umami) umami.track('offer_unlocked'); } catch(e){}
+    }
+
+    video.addEventListener('timeupdate', function(){
+        if (video.currentTime > maxWatched) maxWatched = video.currentTime;
+        if (maxWatched >= UNLOCK_AT) { unlock(); return; }
+        if (sub) sub.textContent = 'abre em ~' + Math.ceil(UNLOCK_AT - maxWatched) + 's de vídeo';
+    });
+
+    // impede pular pra frente pra furar o gate (rebobinar é permitido)
+    video.addEventListener('seeking', function(){
+        if (!unlocked && video.currentTime > maxWatched + 0.5) video.currentTime = maxWatched;
+    });
+})();
+</script>
+
+<!-- ==================== AUTOPLAY MUDO + ativar som + banner de fim ==================== -->
+<script>
+(function(){
+    var v      = document.getElementById('heroVideo');
+    var btn    = document.getElementById('unmuteBtn');
+    var end    = document.getElementById('videoEnd');
+    var replay = document.getElementById('replayBtn');
+    if (!v) return;
+
+    v.muted = true;                 // navegadores só deixam tocar sozinho se estiver mudo
+    var p = v.play();
+    if (p && p.catch) p.catch(function(){});
+
+    if (btn) {
+        btn.addEventListener('click', function(){
+            v.muted = false;
+            v.currentTime = 0;       // recomeça pra ouvir o início com som
+            v.play();
+            btn.classList.add('is-hidden');
+            try { if (window.umami) umami.track('video_unmuted'); } catch(e){}
+        });
+    }
+
+    // banner ao terminar o vídeo
+    v.addEventListener('ended', function(){
+        if (end) end.classList.add('is-on');
+        try { if (window.umami) umami.track('video_ended'); } catch(e){}
+    });
+    if (replay) {
+        replay.addEventListener('click', function(){
+            if (end) end.classList.remove('is-on');
+            v.currentTime = 0; v.play();
+        });
+    }
+})();
+</script>
 
 </body>
 </html>
