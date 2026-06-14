@@ -75,6 +75,15 @@
         /* #problema agora em fundo claro — mantém o bloco de diagnóstico legível */
         #problema .diagnosis-line { color: var(--moss); }
         #problema .diagnosis-text { color: var(--ink); }
+
+        /* #planos agora em fundo escuro — a sombra dos cards de plano era --moss (escura)
+           e sumia no escuro; troca por âmbar pra eles ganharem o "pop" pixel no fundo escuro */
+        #planos .biome-card { box-shadow: 8px 8px 0 var(--sun); }
+        #planos .biome-card:hover { box-shadow: 11px 11px 0 var(--sun); }
+
+        /* #problema agora em fundo claro — cards de erro são escuros e estavam sem sombra,
+           "flutuando" no claro; uma sombra pixel escura ancora eles igual aos cards de plano */
+        #problema .error-card { box-shadow: 6px 6px 0 var(--ink); }
     </style>
 
     <!-- ==================== JSON-LD STRUCTURED DATA ==================== -->
