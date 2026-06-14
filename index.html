@@ -71,6 +71,10 @@
         }
         .carousel-btn:disabled { opacity: 0.3; cursor: default; box-shadow: none; }
         .carousel-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+
+        /* #problema agora em fundo claro — mantém o bloco de diagnóstico legível */
+        #problema .diagnosis-line { color: var(--moss); }
+        #problema .diagnosis-text { color: var(--ink); }
     </style>
 
     <!-- ==================== JSON-LD STRUCTURED DATA ==================== -->
@@ -255,13 +259,13 @@
 </section>
 
 <!-- ==================== PLANOS / OFFER LADDER ==================== -->
-<section id="planos" class="section section-parchment">
+<section id="planos" class="section section-dark">
     <div class="container">
         <div class="section-header">
-            <span class="section-label pixel-font">› Escolha como você quer começar:</span>
+            <span class="section-label-dark pixel-font">› Escolha como você quer começar:</span>
         </div>
 
-        <h2 class="section-title pixel-font">Dois jeitos de participar.<br><span class="dim-text">Comece onde você consegue HOJE.</span></h2>
+        <h2 class="section-title-dark pixel-font">Dois jeitos de participar.<br><span class="dim-text">Comece onde você consegue HOJE.</span></h2>
 
         <div class="biome-grid" id="entrar">
 
@@ -302,13 +306,13 @@
 </section>
 
 <!-- ==================== O PROBLEMA ==================== -->
-<section id="problema" class="section section-dark">
+<section id="problema" class="section section-parchment">
     <div class="container">
         <div class="section-header">
-            <span class="section-label-dark pixel-font">› Foi isso que fizeram com você:</span>
+            <span class="section-label pixel-font">› Foi isso que fizeram com você:</span>
         </div>
 
-        <h2 class="section-title-dark pixel-font">O problema não é você.<br>É como te ensinaram.</h2>
+        <h2 class="section-title pixel-font">O problema não é você.<br>É como te ensinaram.</h2>
 
         <div class="error-grid">
             <div class="error-card">
