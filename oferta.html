@@ -100,6 +100,34 @@
             font-family: var(--pixel-font); cursor: pointer; background: none; border: 0;
             color: var(--mist); font-size: 0.72rem; text-decoration: underline; padding: 0;
         }
+
+        /* ===== CARROSSEL DE PLANOS — cards deslizáveis (swipe + setas), igual ao site ===== */
+        .biome-grid {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;        /* Firefox */
+            -ms-overflow-style: none;     /* IE / Edge antigo */
+            padding: 8px 16px 26px;
+        }
+        .biome-grid::-webkit-scrollbar { display: none; }   /* Chrome / Safari / Opera */
+        .biome-grid > * { flex: 1 0 290px; scroll-snap-align: start; }
+        @media (max-width: 600px) {
+            .biome-grid > * { flex: 0 0 85%; }
+        }
+        .carousel-nav { display: none; gap: 10px; justify-content: flex-end; margin-top: 14px; }
+        .carousel-btn {
+            width: 42px; height: 42px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; line-height: 1;
+            color: var(--ink); background: var(--brand-yellow);
+            border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
+            cursor: pointer;
+        }
+        .carousel-btn:disabled { opacity: 0.3; cursor: default; box-shadow: none; }
+        .carousel-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
     </style>
 </head>
 <body>
@@ -118,7 +146,7 @@
         <span class="lp-eyebrow">› você já entendeu que fluência não é estudar.</span>
 
         <h1 class="hero-headline pixel-font lp-hero-headline">
-            Aprender inglês é estudar pra o que você <span class="accent">nunca</span> vai usar, se você já não está usando ele hoje.
+            Aprender inglês é estudar o que você <span class="accent">nunca</span> vai usar, se você já não está usando ele hoje.
         </h1>
         <p class="hero-sub lp-hero-sub">
             E é isso que eu quero te <strong>mostrar</strong>: Por que ainda não deu certo, o por que você trava, e o que fazer a partir de hoje.
@@ -161,49 +189,46 @@
             <span class="section-label pixel-font">› e agora, o próximo passo:</span>
         </div>
         <h2 class="section-title pixel-font" style="text-align:center;">
-            Um lugar pra finalmente USAR o seu inglês.<br><span class="dim-text">No seu tempo, sem gramatiquinha.</span>
+            Um lugar para finalmente praticar o seu inglês.<br><span class="dim-text">No seu tempo e do seu interesse.</span>
         </h2>
 
         <div class="biome-grid" style="max-width:740px; margin:0 auto;">
 
-            <!-- LAC MENSAL — entrada -->
+            <!-- LAC MENSAL -->
             <article class="biome-card">
                 <h3 class="biome-title pixel-font">LAC · mensal</h3>
                 <p class="biome-subtitle pixel-font">— Language Acquisition Club —</p>
                 <p class="biome-price body-font">R$ 49,90 <span class="biome-period">/mês</span></p>
                 <ul class="biome-list">
-                    <li>Atividades guiadas toda semana — você não pensa no que praticar, eu já deixo pronto.</li>
-                    <li>Um tema novo por semana, do que tá rolando lá fora.</li>
-                    <li>Comunidade no Discord pra praticar com gente no mesmo barco que você.</li>
-                    <li>Classroom com a trilha pra usar o inglês que você já tem.</li>
+                    <li>O lugar para você adquirir o inglês como uma ferramenta.</li>
+                    <li>Classroom com uma trilha de aprendizado para usar o inglês hoje.</li>
+                    <li>Atividades semanais para trabalhar o inglês em todos os sentidos.</li>
+                    <li>Lista de Espera para as vagas de Conversation Classes!</li>
                 </ul>
-                <p class="biome-pitch">Pra começar hoje, no seu tempo, sem gramatiquinha. Cancela quando quiser.</p>
-                <a href="https://buy.stripe.com/fZu4gAd9Y3hodQjbEabfO04" class="btn-secondary biome-cta pixel-font" target="_blank" rel="noopener" data-umami-event="lac_checkout_mensal">› Começar no mês a mês</a>
+                <p class="biome-pitch">O jeito mais tranquilo de se adquirir vivência com o inglês. Para quem precisa do compromisso, mas não tem o tempo.</p>
+                <a href="https://buy.stripe.com/fZu4gAd9Y3hodQjbEabfO04" class="btn-secondary biome-cta pixel-font" target="_blank" rel="noopener" data-umami-event="lac_checkout_mensal">› Comece agora</a>
                 <p class="biome-fineprint">Pagamento seguro via Stripe · Cartão / Pix</p>
             </article>
 
-            <!-- LAC ANUAL — destaque (2 meses grátis) -->
+            <!-- LAC ANUAL -->
             <article class="biome-card biome-featured">
-                <h3 class="biome-title pixel-font">LAC · 1 ano</h3>
-                <p class="biome-subtitle pixel-font">— 2 meses grátis —</p>
+                <h3 class="biome-title pixel-font">LAC · anual</h3>
+                <p class="biome-subtitle pixel-font">— LAC + Personal Curriculum —</p>
                 <p class="biome-price body-font">R$ 499,90 <span class="biome-period">/ano</span></p>
-                <p class="biome-price-alt body-font">≈ R$ 41,65/mês · 12 meses pelo preço de 10</p>
                 <ul class="biome-list">
-                    <li>Tudo do plano mensal, o ano inteiro.</li>
-                    <li>Todos os contextos do ano — dezenas de temas de atualidade pra usar o inglês.</li>
-                    <li>A newsletter junto: o que tá sendo discutido lá fora, toda semana.</li>
-                    <li>2 meses de graça — você economiza quase R$100.</li>
+                    <li>Todo mês eu te mostro 4 temas, mas no ano eu te mostro todos.</li>
+                    <li>Dezenas de assuntos da atualidade pra usar o inglês.</li>
+                    <li>Prioridade total para as vagas de Conversation Classes.</li>
+                    <li>Assim que começar, eu crio com você um roteiro personalizado, com assuntos e tópicos para o seu uso especifico!</li>
                 </ul>
-                <p class="biome-pitch">Pra quem já decidiu que vai viver o inglês de verdade — e quer o caminho inteiro de uma vez.</p>
-                <a href="https://buy.stripe.com/00waEY4Ds5pw4fJcIebfO08" class="btn-primary biome-cta pixel-font" target="_blank" rel="noopener" data-umami-event="lac_checkout_anual">› Pegar o ano com 2 meses grátis</a>
+                <p class="biome-pitch">O jeito mais completo de começar a sua vivência com o inglês. Para quem quer o caminho todo de uma vez.</p>
+                <a href="https://buy.stripe.com/00waEY4Ds5pw4fJcIebfO08" class="btn-primary biome-cta pixel-font" target="_blank" rel="noopener" data-umami-event="lac_checkout_anual">› Receba o plano agora</a>
                 <p class="biome-fineprint">Pagamento seguro via Stripe · Cartão / Pix</p>
             </article>
 
         </div>
     </div>
 </section>
-
-<!-- (seção de depoimentos removida — a prova agora vive nos cortes do vídeo) -->
 
 <!-- ==================== FOOTER ==================== -->
 <footer class="site-footer">
@@ -289,6 +314,45 @@
             v.currentTime = 0; v.play();
         });
     }
+})();
+</script>
+
+<!-- ==================== CARROSSEL DE PLANOS: setas pra avançar/voltar (swipe também funciona) ==================== -->
+<script>
+(function(){
+    var tracks = document.querySelectorAll('.biome-grid');
+    tracks.forEach(function(track){
+        var nav  = document.createElement('div');
+        nav.className = 'carousel-nav';
+        var prev = document.createElement('button');
+        prev.type = 'button'; prev.className = 'carousel-btn pixel-font';
+        prev.setAttribute('aria-label', 'Plano anterior'); prev.textContent = '\u2039';
+        var next = document.createElement('button');
+        next.type = 'button'; next.className = 'carousel-btn pixel-font';
+        next.setAttribute('aria-label', 'Pr\u00f3ximo plano'); next.textContent = '\u203a';
+        nav.appendChild(prev); nav.appendChild(next);
+        track.parentNode.insertBefore(nav, track.nextSibling);
+
+        function step(){
+            var card = track.children[0];
+            if (!card) return track.clientWidth;
+            var cs = getComputedStyle(track);
+            var gap = parseFloat(cs.columnGap || cs.gap) || 0;
+            return card.getBoundingClientRect().width + gap;
+        }
+        prev.addEventListener('click', function(){ track.scrollBy({ left: -step(), behavior: 'smooth' }); });
+        next.addEventListener('click', function(){ track.scrollBy({ left:  step(), behavior: 'smooth' }); });
+
+        function refresh(){
+            var max = track.scrollWidth - track.clientWidth;
+            nav.style.display = max > 2 ? 'flex' : 'none';
+            prev.disabled = track.scrollLeft <= 1;
+            next.disabled = track.scrollLeft >= max - 1;
+        }
+        refresh();
+        track.addEventListener('scroll', refresh, { passive: true });
+        window.addEventListener('resize', refresh);
+    });
 })();
 </script>
 
