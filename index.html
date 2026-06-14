@@ -23,12 +23,6 @@
             display: block; color: var(--mist); cursor: pointer;
         }
 
-        /* mobile: a barra lateral do hero é escondida em telas pequenas (style.css),
-           então re-exibimos o palco só pra manter o vídeo do hero visível no celular */
-        @media (max-width: 600px) {
-            .hero-avatar-stage { display: flex; }
-        }
-
         /* Problema, depoimentos e planos: fila horizontal que PREENCHE a largura quando há
            poucos cards, e vira carrossel quando não cabem mais — barra de rolagem ESCONDIDA */
         .error-grid,
@@ -72,18 +66,10 @@
         .carousel-btn:disabled { opacity: 0.3; cursor: default; box-shadow: none; }
         .carousel-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
 
-        /* #problema agora em fundo claro — mantém o bloco de diagnóstico legível */
-        #problema .diagnosis-line { color: var(--moss); }
-        #problema .diagnosis-text { color: var(--ink); }
-
-        /* #planos agora em fundo escuro — a sombra dos cards de plano era --moss (escura)
-           e sumia no escuro; troca por âmbar pra eles ganharem o "pop" pixel no fundo escuro */
-        #planos .biome-card { box-shadow: 8px 8px 0 var(--sun); }
-        #planos .biome-card:hover { box-shadow: 11px 11px 0 var(--sun); }
-
-        /* #problema agora em fundo claro — cards de erro são escuros e estavam sem sombra,
-           "flutuando" no claro; uma sombra pixel escura ancora eles igual aos cards de plano */
-        #problema .error-card { box-shadow: 6px 6px 0 var(--ink); }
+        /* #metodo agora escuro (rampa de intro a partir do hero) — textos que tinham
+           cor escura fixa precisam clarear pra continuar legíveis no fundo escuro */
+        #metodo .about-text .closer { color: var(--earth-white); }
+        #metodo .about-text .closer.dim-text { color: var(--mist); border-left-color: var(--gray-mid); }
     </style>
 
     <!-- ==================== JSON-LD STRUCTURED DATA ==================== -->
@@ -190,7 +176,6 @@
     <a href="#top" class="nav-brand pixel-font">~/half-o-fluent</a>
     <ul class="nav-links">
         <li><a class="pixel-font" href="#metodo">MÉTODO</a></li>
-        <li><a class="pixel-font" href="#problema">PROBLEMA</a></li>
         <li><a class="pixel-font" href="#planos">PLANOS</a></li>
         <li><a class="pixel-font nav-btn" href="#entrar">COMECE HOJE →</a></li>
     </ul>
@@ -221,36 +206,34 @@
         </div>
 
         <div class="hero-avatar-stage">
-            <!-- VÍDEO HERO: toca sozinho (mudo). Vídeo em assets/a-diferenca.mp4 — carrega sozinho, sem YouTube. -->
-            <div class="terminal-window" style="max-width:330px; width:100%; margin:0 auto;">
-                <video class="video-slot" id="heroVideo" controls playsinline autoplay muted preload="auto"
-                       poster="assets/oferta-poster.png"
-                       style="object-fit:cover;"
-                       onplay="window.umami && umami.track('hero_video_play')">
-                    <source src="assets/a-diferenca.mp4" type="video/mp4">
-                    Seu navegador não suporta vídeo embutido.
-                </video>
-            </div>
+            <img src="assets/heitor-mug.png" alt="Teacher Heitor" class="hero-avatar-img">
         </div>
     </div>
 </header>
 
 <!-- ============================= MÉTODO ============================= -->
-<section id="metodo" class="section section-parchment">
+<section id="metodo" class="section section-dark">
     <div class="container">
         <div class="section-header">
-            <span class="section-label pixel-font">› O que é o Half-o-FLuent?</span>
+            <span class="section-label-dark pixel-font">› O que é o Half-o-FLuent?</span>
         </div>
 
         <div class="about-layout">
             <div class="about-portrait-wrap">
-                <div class="pixel-frame">
-                    <img src="assets/heitor-mug.png" alt="Teacher Heitor com caneca" class="about-portrait">
+                <!-- VÍDEO: toca sozinho (mudo). assets/a-diferenca.mp4 — carrega sozinho, sem YouTube. -->
+                <div class="terminal-window" style="max-width:330px; width:100%; margin:0 auto;">
+                    <video class="video-slot" id="heroVideo" controls playsinline autoplay muted preload="auto"
+                           poster="assets/oferta-poster.png"
+                           style="object-fit:cover;"
+                           onplay="window.umami && umami.track('hero_video_play')">
+                        <source src="assets/a-diferenca.mp4" type="video/mp4">
+                        Seu navegador não suporta vídeo embutido.
+                    </video>
                 </div>
             </div>
 
             <div class="about-text">
-                <h2 class="section-title pixel-font">"Eu já to estudando faz tempo, já sou QUASE fluente."</h2>
+                <h2 class="section-title-dark pixel-font">"Eu já to estudando faz tempo, já sou QUASE fluente."</h2>
                 <p>Essa é a frase que todo aluno fala, <strong>o que eles não falam é Inglês.</strong></p>
 
                 <p>"Aprender" Inglês não é diferente de "aprender" Português, ninguém te mostrou uma tabela de grámatica antes de você conseguir falar o que queria comer. Mas quando o assunto é Inglês, todo mundo acha que tem que chegar na fluência para dizer que sabe outro idioma.</p>
@@ -268,13 +251,13 @@
 </section>
 
 <!-- ==================== PLANOS / OFFER LADDER ==================== -->
-<section id="planos" class="section section-dark">
+<section id="planos" class="section section-parchment">
     <div class="container">
         <div class="section-header">
-            <span class="section-label-dark pixel-font">› Escolha como você quer começar:</span>
+            <span class="section-label pixel-font">› Escolha como você quer começar:</span>
         </div>
 
-        <h2 class="section-title-dark pixel-font">Dois jeitos de participar.<br><span class="dim-text">Comece onde você consegue HOJE.</span></h2>
+        <h2 class="section-title pixel-font">Dois jeitos de participar.<br><span class="dim-text">Comece onde você consegue HOJE.</span></h2>
 
         <div class="biome-grid" id="entrar">
 
@@ -310,40 +293,6 @@
                 <p class="biome-fineprint">Pagamento Seguro via Stripe · Cartão / Pix</p>
             </article>
 
-        </div>
-    </div>
-</section>
-
-<!-- ==================== O PROBLEMA ==================== -->
-<section id="problema" class="section section-parchment">
-    <div class="container">
-        <div class="section-header">
-            <span class="section-label pixel-font">› Foi isso que fizeram com você:</span>
-        </div>
-
-        <h2 class="section-title pixel-font">O problema não é você.<br>É como te ensinaram.</h2>
-
-        <div class="error-grid">
-            <div class="error-card">
-                <p class="error-tag pixel-font">ERROR_01</p>
-                <p class="error-msg pixel-font">"entendo tudo, mas<br>não consigo falar"</p>
-                <p class="error-desc">Você assiste coisa em inglês. Escuta música em inglês. Lê um post ou outro. Mas na hora que precisa <em>falar</em>, você esquece palavra, gagueja, ou até trava. </p>
-            </div>
-            <div class="error-card">
-                <p class="error-tag pixel-font">ERROR_02</p>
-                <p class="error-msg pixel-font">"quando eu falo inglês<br>parece que não sou eu"</p>
-                <p class="error-desc">Você sabe o que dizer, mas em português. Em inglês, sai cortado pela metade. Você fala palavras soltas. Só não parece com o inglês que você vê os outros falando.</p>
-            </div>
-            <div class="error-card">
-                <p class="error-tag pixel-font">ERROR_03</p>
-                <p class="error-msg pixel-font">"se eu tenho que falar<br>com um nativo fica difícil"</p>
-                <p class="error-desc">Reunião em inglês, primeira vez na vida. Você se prepara, até demais, e ainda assim trava. Parece que tem uma pressão toda vez que você precisa usar o SEU inglês.</p>
-            </div>
-        </div>
-
-        <div class="diagnosis">
-            <p class="diagnosis-line pixel-font">› ROOT CAUSE</p>
-            <p class="diagnosis-text">Isso não é falta de estudo. É falta de uso. Curso de inglês trata um problema de produção como se fosse um problema de informação. Por isso não funciona para você. Se VOCÊ não tiver onde e como usar inglês, é isso que vai acontecer.</p>
         </div>
     </div>
 </section>
