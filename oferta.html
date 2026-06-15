@@ -257,18 +257,30 @@
     var UNLOCK_AT = 78;
 
     var maxWatched = 0, unlocked = false;
+    // marcos de progresso ANTES do unlock (78s): mostram ONDE a galera larga.
+    // disparam UMA vez cada, baseados no ponto mais longe assistido de verdade.
+    var marks = [
+        { t: 10, name: 'video_10s', done: false },
+        { t: 45, name: 'video_45s', done: false },
+        { t: 70, name: 'video_70s', done: false }
+    ];
     gate.classList.add('gated');   // sem JS, a oferta aparece normal (fail-safe)
+
+    function track(name){ try { if (window.umami) umami.track(name); } catch(e){} }
 
     function unlock(){
         if (unlocked) return;
         unlocked = true;
         gate.classList.remove('gated');
         if (cue) cue.innerHTML = '↓ <span class="accent">é assim que você começa hoje:</span>';
-        try { if (window.umami) umami.track('offer_unlocked'); } catch(e){}
+        track('offer_unlocked');
     }
 
     video.addEventListener('timeupdate', function(){
         if (video.currentTime > maxWatched) maxWatched = video.currentTime;
+        marks.forEach(function(m){
+            if (!m.done && maxWatched >= m.t) { m.done = true; track(m.name); }
+        });
         if (maxWatched >= UNLOCK_AT) { unlock(); return; }
         if (sub) sub.textContent = 'abre em ~' + Math.ceil(UNLOCK_AT - maxWatched) + 's de vídeo';
     });
