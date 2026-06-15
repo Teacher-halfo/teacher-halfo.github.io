@@ -48,24 +48,29 @@
         .post-video-cue { text-align:center; color: var(--mist); font-family: var(--pixel-font); font-size: 0.85rem; margin: 22px 0 0; }
         .post-video-cue .accent { color: var(--sun); }
 
-        /* ===== VSL GATE — a oferta trava até o vídeo chegar na parte da LAC ===== */
+        /* ===== VSL GATE — os planos ficam legíveis; só PREÇO e BOTÃO travam até a parte da LAC ===== */
         .lock-veil { display: none; }
         .gated { position: relative; }
-        .gated .vsl-content { filter: blur(7px); opacity: 0.5; pointer-events: none; user-select: none; }
+        /* trava SÓ os preços e os botões de pagamento — o resto do card fica legível pra pessoa comparar */
+        .gated .biome-price,
+        .gated .biome-cta {
+            filter: blur(6px); opacity: 0.55; pointer-events: none; user-select: none;
+        }
+        .biome-price, .biome-cta { transition: filter 0.6s ease, opacity 0.6s ease; }
+        /* aviso de bloqueio: agora um banner no topo da seção, não um véu por cima de tudo */
         .gated .lock-veil {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 12px; text-align: center; padding: 24px;
-            position: absolute; inset: 0; z-index: 5;
-            background: rgba(245,239,224,0.45);
+            gap: 6px; text-align: center; padding: 12px 18px;
+            margin: 0 auto 20px; max-width: 540px;
+            background: rgba(245,239,224,0.6); border: 2px dashed var(--moss);
         }
         .lock-veil .lock-badge {
             font-family: var(--pixel-font); color: var(--brand-yellow);
             background: var(--ink); border: 2px solid var(--brand-yellow);
-            box-shadow: 5px 5px 0 var(--ink); padding: 14px 18px; font-size: 0.95rem;
-            letter-spacing: 0.04em;
+            box-shadow: 4px 4px 0 var(--ink); padding: 12px 16px; font-size: 0.85rem;
+            letter-spacing: 0.04em; line-height: 1.4;
         }
         .lock-veil .lock-sub { font-family: var(--pixel-font); color: var(--moss); font-size: 0.8rem; }
-        .vsl-content { transition: filter 0.6s ease, opacity 0.6s ease; }
 
         /* ===== AUTOPLAY MUDO: botão "ativar som" dentro da barra do terminal ===== */
         .bar-unmute {
@@ -146,10 +151,10 @@
         <span class="lp-eyebrow">› você já entendeu que fluência não é estudar.</span>
 
         <h1 class="hero-headline pixel-font lp-hero-headline">
-            Aprender inglês é estudar o que você <span class="accent">nunca</span> vai usar, se você já não está usando ele hoje.
+            ESTUDAR INGLÊS <span class="accent">SEM PRÁTICA</span> É ACUMULAR CONHECIMENTO QUE VOCÊ <span class="accent">NUNCA</span> VAI USAR.
         </h1>
         <p class="hero-sub lp-hero-sub">
-            E é isso que eu quero te <strong>mostrar</strong>: Por que ainda não deu certo, o por que você trava, e o que fazer a partir de hoje.
+            E é isso que eu vou te mostrar: Por que você ainda não ficou fluente, o motivo de você travar e o que a gente pode fazer agora para mudar a sua situação.
         </p>
 
         <!-- VÍDEO HERO: toca sozinho (mudo); botão na barra liga o som; ao fim, banner de CTA.
@@ -181,8 +186,8 @@
 <!-- ==================== OS PLANOS (iguais aos do site) ==================== -->
 <section id="planos" class="section section-parchment">
     <div class="lock-veil" aria-hidden="true">
-        <div class="lock-badge pixel-font">🔒 continue assistindo pra liberar</div>
-        <div class="lock-sub pixel-font" id="lockSub">a oferta abre na parte da LAC do vídeo</div>
+        <div class="lock-badge pixel-font">🔒 Veja o método no vídeo para desbloquear a oferta</div>
+        <div class="lock-sub pixel-font" id="lockSub">abre na parte da LAC do vídeo</div>
     </div>
     <div class="container vsl-content">
         <div class="section-header" style="text-align:center;">
