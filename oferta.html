@@ -187,7 +187,6 @@
 <section id="planos" class="section section-parchment">
     <div class="lock-veil" aria-hidden="true">
         <div class="lock-badge pixel-font">🔒 Veja o método no vídeo para desbloquear a oferta</div>
-        <div class="lock-sub pixel-font" id="lockSub">abre na parte da LAC do vídeo</div>
     </div>
     <div class="container vsl-content">
         <div class="section-header" style="text-align:center;">
@@ -294,6 +293,19 @@
     video.addEventListener('seeking', function(){
         if (!unlocked && video.currentTime > maxWatched + 0.5) video.currentTime = maxWatched;
     });
+
+    // dispara UMA vez quando a oferta (travada) entra na tela: pularam o vídeo pra ver a oferta?
+    if ('IntersectionObserver' in window) {
+        var offerSeen = false;
+        var io = new IntersectionObserver(function(entries){
+            if (entries[0].isIntersecting && !offerSeen) {
+                offerSeen = true;
+                track('scroll_to_offer');
+                io.disconnect();
+            }
+        }, { threshold: 0.3 });
+        io.observe(gate);
+    }
 })();
 </script>
 
