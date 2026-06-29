@@ -509,5 +509,289 @@
 })();
 </script>
 
+
+<!-- ====================================================================
+     LEAD POPUP · PARCEIRO DE PRÁTICA  (captura de leads)
+     --------------------------------------------------------------------
+     ATENCAO: so UM popup ativo no site por vez. ESTE eh o que esta NO AR.
+     Quando o popup da COPA entrar, REMOVA este bloco INTEIRO -- os tres
+     pedacos logo abaixo: o markup (div#leadPopup), o bloco de estilo e o
+     bloco de script -- e cole o da Copa no lugar. NUNCA os dois ao mesmo
+     tempo. Vive APENAS no index.html.
+     ==================================================================== -->
+<div id="leadPopup" class="lead-overlay" role="dialog" aria-modal="true"
+     aria-labelledby="leadTitle" aria-describedby="leadDesc" hidden>
+    <div class="lead-modal terminal-window" role="document">
+        <div class="terminal-bar">
+            <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
+            <span class="terminal-title">Teacher Assistant</span>
+            <button type="button" class="lead-close pixel-font" id="leadClose" aria-label="close">✕</button>
+        </div>
+        <div class="lead-body">
+            <p class="lead-eyebrow pixel-font">› de graça, e você pode começar hoje</p>
+            <h2 id="leadTitle" class="lead-title pixel-font">Ganhe um parceiro de prática de inglês.</h2>
+            <p id="leadDesc" class="lead-sub">Alguém pra você conversar em inglês a qualquer hora, sem vergonha de errar. Treinado com o meu material, pra ajudar você a <strong>usar o idioma de verdade</strong>, se não tem com quem falar inglês e precisa de alguém que te ajude a conversar melhor. Me diz pra onde te mando o acesso:</p>
+
+            <form id="leadForm" class="lead-form" novalidate>
+                <label class="lead-label pixel-font" for="leadNome">Nome</label>
+                <input class="lead-input" id="leadNome" name="nome" type="text" autocomplete="name" placeholder="Como você se chama?" required>
+
+                <label class="lead-label pixel-font" for="leadEmail">Email</label>
+                <input class="lead-input" id="leadEmail" name="email" type="email" autocomplete="email" placeholder="seu@email.com" required>
+
+                <label class="lead-label pixel-font" for="leadZap">WhatsApp (com DDD)</label>
+                <input class="lead-input" id="leadZap" name="whatsapp" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(19) 99999-9999" required>
+
+                <label class="lead-consent" for="leadConsent">
+                    <input type="checkbox" id="leadConsent" name="consent" required>
+                    <span>Aceito receber o acesso ao Gem e os materiais do Heitor.</span>
+                </label>
+
+                <p class="lead-error" id="leadError" role="alert" hidden></p>
+
+                <button type="submit" class="btn-primary lead-submit pixel-font" id="leadSubmit" data-umami-event="lead_submit">› Quero meu parceiro de prática</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ===== LEAD POPUP — usa os mesmos tokens do style.css ===== */
+    .lead-consent {
+        display: flex; gap: 8px; align-items: flex-start;
+        margin: 2px 0 4px; text-align: left;
+        font-size: 0.8rem; line-height: 1.35; cursor: pointer;
+    }
+    .lead-consent input { margin-top: 3px; flex-shrink: 0; }
+    .lead-overlay {
+        position: fixed; inset: 0; z-index: 9999;   /* acima do whatsapp-fab (200) */
+        display: flex; align-items: center; justify-content: center;
+        padding: 20px;
+        background: rgba(15, 13, 10, 0.82);
+        overflow-y: auto;
+        animation: leadFade 0.25s ease;
+    }
+    .lead-overlay[hidden] { display: none; }
+    @keyframes leadFade { from { opacity: 0; } to { opacity: 1; } }
+
+    .lead-modal {
+        width: 100%; max-width: 440px; margin: auto;
+        max-height: calc(100vh - 40px);
+        display: flex; flex-direction: column;
+        background: var(--ink);
+    }
+    .lead-modal .terminal-bar { flex-shrink: 0; }
+    .lead-close {
+        margin-left: auto; cursor: pointer;
+        background: transparent; border: 0;
+        color: var(--mist); font-size: 1rem; line-height: 1;
+        padding: 2px 4px;
+    }
+    .lead-close:hover { color: var(--brand-yellow); }
+
+    .lead-body {
+        padding: 24px 24px 28px;
+        overflow-y: auto;
+        font-family: var(--body-font);
+        color: var(--earth-white);
+    }
+    .lead-eyebrow { color: var(--sun); font-size: 0.78rem; letter-spacing: 0.04em; margin: 0 0 10px; }
+    .lead-title { color: var(--parchment); font-size: 1.5rem; line-height: 1.2; margin: 0 0 12px; text-shadow: 2px 2px 0 var(--ink); }
+    .lead-sub { color: var(--mist); font-size: 0.98rem; line-height: 1.5; margin: 0 0 20px; }
+    .lead-sub strong { color: var(--parchment); }
+
+    .lead-form { display: flex; flex-direction: column; }
+    .lead-label { color: var(--brand-yellow); font-size: 0.72rem; letter-spacing: 0.04em; margin: 0 0 6px; }
+    .lead-input {
+        background: var(--ink-soft); color: var(--earth-white);
+        border: 2px solid var(--gray-deep); border-radius: 0;
+        padding: 11px 12px; margin: 0 0 16px;
+        font-family: var(--body-font); font-size: 1rem;
+        width: 100%; box-sizing: border-box;
+        transition: border-color 0.15s;
+    }
+    .lead-input::placeholder { color: var(--gray-mid); }
+    .lead-input:focus { outline: none; border-color: var(--brand-yellow); }
+    .lead-input.is-invalid { border-color: #d9534f; }
+
+    .lead-error {
+        background: rgba(217, 83, 79, 0.14); border: 1px solid #d9534f;
+        color: #f3b6b4; font-size: 0.85rem; line-height: 1.4;
+        padding: 8px 10px; margin: 0 0 14px;
+    }
+    .lead-error[hidden] { display: none; }
+
+    .lead-submit { width: 100%; text-align: center; font-size: 0.95rem; margin: 4px 0 0; }
+    .lead-submit:disabled { opacity: 0.6; cursor: wait; transform: none; box-shadow: 5px 5px 0 var(--ember); }
+    .lead-fineprint { color: var(--gray-mid); font-size: 0.78rem; text-align: center; margin: 12px 0 0; }
+
+    @media (max-width: 600px) {
+        .lead-overlay { padding: 12px; align-items: flex-start; }
+        .lead-body { padding: 20px 18px 24px; }
+        .lead-title { font-size: 1.3rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .lead-overlay { animation: none; }
+    }
+</style>
+
+<!-- ===== LEAD CAPTURE (parceiro de prática) — PARADO como scaffolding =====
+     O script de ativação abaixo está truncado/incompleto e foi COMENTADO
+     pra não rodar nem quebrar a página. Markup + estilos acima ficam como
+     scaffolding. Reativar via Build mode quando o backend estiver pronto.
+     Só UM popup ativo por vez; a COPA está no ar agora.
+     (WIP exato preservado em outputs/index.leadwip.backup.html)
+
+<script>
+(function(){
+    // PLACEHOLDER -- URL DO BACKEND (onde os dados sao salvos). POST JSON.
+    // O chat do backend te entrega essa URL.
+    var LEAD_ENDPOINT = 'COLE_AQUI_A_URL_DO_ENDPOINT';
+
+    var SUCCESS_URL = 'comecar.html';      // pra onde a pessoa vai depois de enviar
+    var SEEN_KEY    = 'hof_lead_popup_seen';
+    var DELAY_MS    = 8000;                 // mostra depois de 8s (ou na intencao de saida)
+
+    var overlay = document.getElementById('leadPopup');
+    var form    = document.getElementById('leadForm');
+    if (!overlay || !form) return;
+
+    var closeBtn = document.getElementById('leadClose');
+    var submitBtn= document.getElementById('leadSubmit');
+    var errorBox = document.getElementById('leadError');
+    var nome     = document.getElementById('leadNome');
+    var email    = document.getElementById('leadEmail');
+    var zap      = document.getElementById('leadZap');
+    var consentBox = document.getElementById('leadConsent');
+
+    var alreadySeen = false;
+    try { alreadySeen = sessionStorage.getItem(SEEN_KEY) === '1'; } catch(e){}
+    if (alreadySeen) return;
+
+    var shown = false, lastFocus = null;
+
+    function track(name){ try { if (window.umami) umami.track(name); } catch(e){} }
+
+    function show(){
+        if (shown) return;
+        shown = true;
+        try { sessionStorage.setItem(SEEN_KEY, '1'); } catch(e){}
+        lastFocus = document.activeElement;
+        overlay.hidden = false;
+        document.body.style.overflow = 'hidden';
+        if (nome) nome.focus();
+        track('lead_popup_shown');
+        cleanupTriggers();
+    }
+
+    function hide(){
+        overlay.hidden = true;
+        document.body.style.overflow = '';
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    // gatilhos: 8s OU intencao de saida (desktop), o que vier primeiro
+    var timer = setTimeout(show, DELAY_MS);
+    function onExit(e){ if (!e.relatedTarget && e.clientY <= 0) show(); }
+    document.addEventListener('mouseout', onExit);
+    function cleanupTriggers(){
+        clearTimeout(timer);
+        document.removeEventListener('mouseout', onExit);
+    }
+
+    // fechar
+    if (closeBtn) closeBtn.addEventListener('click', hide);
+    overlay.addEventListener('click', function(e){ if (e.target === overlay) hide(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !overlay.hidden) hide(); });
+
+    // validacao simples
+    function digits(s){ return (s || '').replace(/\D/g, ''); }
+    function showError(msg, field){
+        errorBox.textContent = msg; errorBox.hidden = false;
+        if (field){ field.classList.add('is-invalid'); field.focus(); }
+    }
+    function clearError(){
+        errorBox.hidden = true;
+        [nome, email, zap].forEach(function(f){ f.classList.remove('is-invalid'); });
+    }
+
+    form.addEventListener('submit', function(e){
+        e.preventDefault();
+        clearError();
+
+        if (!nome.value.trim())                       return showError('Me diz seu nome, por favor.', nome);
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim()))
+                                                      return showError('Esse email não parece certo. Confere pra mim?', email);
+        if (digits(zap.value).length < 10)            return showError('Coloca seu WhatsApp com DDD (só os números já valem).', zap);
+        if (consentBox && !consentBox.checked)        return showError('Marca a caixinha pra eu te liberar o acesso.', consentBox);
+
+        if (LEAD_ENDPOINT.indexOf('COLE_AQUI') === 0) {
+            console.warn('[lead] LEAD_ENDPOINT ainda eh um placeholder. Configure a URL do backend.');
+            return showError('Quase lá — o cadastro ainda está sendo configurado. Tenta de novo em instantes.', null);
+        }
+
+        var payload = {
+            nome:      nome.value.trim(),
+            email:     email.value.trim(),
+            whatsapp:  zap.value.trim(),
+            consent:   consentBox ? consentBox.checked : true,
+            source:    'popup_parceiro',
+            page:      location.href,
+            timestamp: new Date().toISOString()
+        };
+
+        submitBtn.disabled = true;
+        var original = submitB
+===== fim do lead capture parado ===== -->
+
+<!-- ==================== POPUP COPA (LAC anual) — NO AR. Leva pra oferta.html.
+     Campanha ATIVA agora. Quando o Brasil cair, troque CAMPANHA_ATIVA pra false.
+     Some sozinho depois da final (FIM_DA_OFERTA). Preview: index.html?copa=preview -->
+<style id="copa-popup-style">
+.copa-overlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,13,10,0.82);}
+.copa-overlay[hidden]{display:none;}
+.copa-modal{position:relative;width:100%;max-width:380px;background:var(--ink-soft);border:2px solid var(--brand-yellow);box-shadow:6px 6px 0 var(--ink);padding:26px 20px 22px;text-align:center;}
+.copa-close{position:absolute;top:6px;right:12px;background:none;border:0;color:var(--gray-mid);font-size:1.5rem;line-height:1;cursor:pointer;}
+.copa-eyebrow{color:var(--brand-yellow);font-size:0.72rem;letter-spacing:0.06em;margin:0 0 12px;}
+.copa-title{color:var(--earth-white);font-size:1.05rem;line-height:1.4;margin:0 0 12px;}
+.copa-sub{color:var(--mist);font-size:0.9rem;line-height:1.5;margin:0 0 14px;}
+.copa-bonus{color:var(--brand-yellow);font-size:0.82rem;line-height:1.4;margin:0 0 18px;border-top:1px dashed var(--gray-deep);padding-top:12px;}
+.copa-cta{display:block;text-decoration:none;font-family:var(--pixel-font);background:var(--brand-yellow);color:var(--ink);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:13px 16px;font-size:0.85rem;letter-spacing:0.03em;}
+.copa-cta:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink);}
+.copa-dismiss{display:inline-block;margin-top:14px;background:none;border:0;color:var(--gray-mid);font-family:var(--pixel-font);font-size:0.75rem;text-decoration:underline;cursor:pointer;}
+</style>
+<div id="copaPopup" class="copa-overlay" role="dialog" aria-modal="true" aria-labelledby="copaTitle" hidden>
+    <div class="copa-modal">
+        <button type="button" class="copa-close" id="copaClose" aria-label="Fechar">&times;</button>
+        <h3 class="copa-title pixel-font" id="copaTitle">O plano anual da LAC tá liberado até o Brasil cair.</h3>
+        <p class="copa-sub body-font">Se ganhar tudo, vai até a final. Se cair antes, a oferta cai junto.</p>
+        <p class="copa-bonus pixel-font">&#9917; E se o Brasil for campeão, todo mundo que entrou ganha +6 meses de LAC de presente.</p>
+        <a href="oferta.html" class="copa-cta pixel-font" data-umami-event="popup_copa_click">&rsaquo; Quero ver a oferta</a>
+        <button type="button" class="copa-dismiss pixel-font" id="copaDismiss">agora não</button>
+    </div>
+</div>
+<script>
+(function(){
+    var CAMPANHA_ATIVA = true;
+    var FIM_DA_OFERTA = new Date('2026-07-20T03:00:00Z');
+    var preview = /[?&]copa=preview/.test(location.search);
+    if (!preview) {
+        if (!CAMPANHA_ATIVA) return;
+        if (new Date() > FIM_DA_OFERTA) return;
+        try { if (sessionStorage.getItem('copa_popup_fechado')) return; } catch(e){}
+    }
+    var pop = document.getElementById('copaPopup');
+    if (!pop) return;
+    function track(n){ try { if (window.umami) umami.track(n); } catch(e){} }
+    function fechar(){ pop.setAttribute('hidden',''); try { sessionStorage.setItem('copa_popup_fechado','1'); } catch(e){} }
+    function abrir(){ pop.removeAttribute('hidden'); if (!preview) track('popup_copa_shown'); }
+    document.getElementById('copaClose').addEventListener('click', function(){ if(!preview) track('popup_copa_dismiss'); fechar(); });
+    document.getElementById('copaDismiss').addEventListener('click', function(){ if(!preview) track('popup_copa_dismiss'); fechar(); });
+    pop.addEventListener('click', function(e){ if (e.target === pop){ if(!preview) track('popup_copa_dismiss'); fechar(); } });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !pop.hasAttribute('hidden')){ if(!preview) track('popup_copa_dismiss'); fechar(); } });
+    setTimeout(abrir, preview ? 300 : 3500);
+})();
+</script>
+
 </body>
 </html>
