@@ -528,7 +528,7 @@
             <button type="button" class="lead-close pixel-font" id="leadClose" aria-label="close">✕</button>
         </div>
         <div class="lead-body">
-            <p class="lead-eyebrow pixel-font">› de graça, e você pode começar hoje</p>
+            <p id="leadEyebrow" class="lead-eyebrow pixel-font">› de graça, e você pode começar hoje</p>
             <h2 id="leadTitle" class="lead-title pixel-font">Ganhe um parceiro de prática de inglês.</h2>
             <p id="leadDesc" class="lead-sub">Alguém pra você conversar em inglês a qualquer hora, sem vergonha de errar. Treinado com o meu material, pra ajudar você a <strong>usar o idioma de verdade</strong>, se não tem com quem falar inglês e precisa de alguém que te ajude a conversar melhor. Me diz pra onde te mando o acesso:</p>
 
@@ -544,7 +544,7 @@
 
                 <label class="lead-consent" for="leadConsent">
                     <input type="checkbox" id="leadConsent" name="consent" required>
-                    <span>Aceito receber o acesso ao Gem e os materiais do Heitor.</span>
+                    <span>Aceito receber os materiais do Heitor.</span>
                 </label>
 
                 <p class="lead-error" id="leadError" role="alert" hidden></p>
@@ -744,6 +744,159 @@
         var original = submitB
 ===== fim do lead capture parado ===== -->
 
+<!-- ===== LEAD POPUP (gem | oferta) — ATIVO. Troque ACTIVE pra alternar. ===== -->
+<script>
+(function(){
+    var LEAD_ENDPOINT = 'https://half-o-leads.oliveira-heitor.workers.dev';
+
+    var ACTIVE = 'oferta';   // 'gem' (perene) | 'oferta' (campanha de oferta)
+
+    var POPUPS = {
+      gem: {
+        eyebrow: '› de graça, e você pode começar hoje',
+        title:   'Ganhe um parceiro de prática de inglês.',
+        desc:    'Alguém pra você conversar em inglês a qualquer hora, sem vergonha de errar. Treinado com o meu material, pra você <strong>usar o idioma de verdade</strong>.',
+        button:  '› Quero meu parceiro de prática',
+        success: 'comecar.html',
+        source:  'popup_parceiro',
+        redirectOnFail: false
+      },
+      oferta: {
+        eyebrow: '› vaga da Copa, por tempo limitado',
+        title:   'Destrava seu inglês na Copa.',
+        desc:    'Deixa seu contato que eu te levo pra oferta, com uma condição especial pra começar agora.',
+        button:  '› Quero ver a oferta',
+        success: 'oferta.html',
+        source:  'popup_oferta',
+        redirectOnFail: true
+      }
+    };
+
+    var cfg         = POPUPS[ACTIVE] || POPUPS.gem;
+    var SUCCESS_URL = cfg.success;
+    var SEEN_KEY    = 'hof_lead_popup_seen_' + ACTIVE;
+    var DELAY_MS    = 4000;
+
+    var overlay = document.getElementById('leadPopup');
+    var form    = document.getElementById('leadForm');
+    if (!overlay || !form) return;
+
+    var closeBtn   = document.getElementById('leadClose');
+    var submitBtn  = document.getElementById('leadSubmit');
+    var errorBox   = document.getElementById('leadError');
+    var nome       = document.getElementById('leadNome');
+    var email      = document.getElementById('leadEmail');
+    var zap        = document.getElementById('leadZap');
+    var consentBox = document.getElementById('leadConsent');
+
+    (function paint(){
+      var put = function(id, html){ var el = document.getElementById(id); if (el) el.innerHTML = html; };
+      put('leadEyebrow', cfg.eyebrow);
+      put('leadTitle',   cfg.title);
+      put('leadDesc',    cfg.desc);
+      put('leadSubmit',  cfg.button);
+    })();
+
+    function track(n){ try { if (window.umami) umami.track(n); } catch(e){} }
+
+    var shown = false;
+    try { if (sessionStorage.getItem(SEEN_KEY) === '1') shown = true; } catch(e){}
+    function show(){
+      if (shown) return;
+      shown = true;
+      try { sessionStorage.setItem(SEEN_KEY, '1'); } catch(e){}
+      overlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      if (nome) nome.focus();
+      track(cfg.source + '_shown');
+    }
+    function hide(){ overlay.hidden = true; document.body.style.overflow = ''; }
+    if (!shown) {
+      setTimeout(show, DELAY_MS);
+      document.addEventListener('mouseout', function onExit(e){
+        if (e.clientY <= 0) { show(); document.removeEventListener('mouseout', onExit); }
+      });
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', hide);
+    overlay.addEventListener('click', function(e){ if (e.target === overlay) hide(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !overlay.hidden) hide(); });
+
+    function digits(s){ return (s || '').replace(/\D/g, ''); }
+    function showError(msg, field){
+      errorBox.textContent = msg; errorBox.hidden = false;
+      if (field){ field.classList.add('is-invalid'); field.focus(); }
+    }
+    function clearError(){
+      errorBox.hidden = true;
+      [nome, email, zap, consentBox].forEach(function(f){ if (f) f.classList.remove('is-invalid'); });
+    }
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      clearError();
+
+      if (!nome.value.trim())                  return showError('Me diz seu nome, por favor.', nome);
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim()))
+                                               return showError('Esse email não parece certo. Confere pra mim?', email);
+      if (digits(zap.value).length < 10)       return showError('Coloca seu WhatsApp com DDD (só os números já valem).', zap);
+      if (consentBox && !consentBox.checked)   return showError('Marca a caixinha pra eu te liberar o acesso.', consentBox);
+
+      var payload = {
+        nome:      nome.value.trim(),
+        email:     email.value.trim(),
+        whatsapp:  zap.value.trim(),
+        consent:   consentBox ? consentBox.checked : true,
+        source:    cfg.source,
+        page:      location.href,
+        timestamp: new Date().toISOString()
+      };
+
+      var notConfigured = LEAD_ENDPOINT.indexOf('COLE_AQUI') === 0;
+
+      // OFERTA (sale-first): leva pra oferta de qualquer jeito; o worker te avisa se a captura falhar
+      if (cfg.redirectOnFail) {
+        if (!notConfigured) {
+          try {
+            fetch(LEAD_ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+              keepalive: true
+            });
+          } catch (err) {}
+        }
+        track('lead_captured');
+        window.location.href = SUCCESS_URL;
+        return;
+      }
+
+      // PERENE (capture-first): só avança se salvar
+      if (notConfigured) {
+        return showError('Quase lá — o cadastro ainda está sendo configurado. Tenta de novo em instantes.', null);
+      }
+      submitBtn.disabled = true;
+      var original = submitBtn.textContent;
+      submitBtn.textContent = '› enviando...';
+      fetch(LEAD_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(function(res){
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        track('lead_captured');
+        window.location.href = SUCCESS_URL;
+      })
+      .catch(function(err){
+        submitBtn.disabled = false;
+        submitBtn.textContent = original;
+        showError('Deu um probleminha pra enviar. Tenta de novo? Se persistir, me chama no WhatsApp.', null);
+      });
+    });
+})();
+</script>
+
 <!-- ==================== POPUP COPA (LAC anual) — NO AR. Leva pra oferta.html.
      Campanha ATIVA agora. Quando o Brasil cair, troque CAMPANHA_ATIVA pra false.
      Some sozinho depois da final (FIM_DA_OFERTA). Preview: index.html?copa=preview -->
@@ -772,7 +925,7 @@
 </div>
 <script>
 (function(){
-    var CAMPANHA_ATIVA = true;
+    var CAMPANHA_ATIVA = false;   // desativado: o popup de captura (variante 'oferta') faz esse papel agora, COM captura de lead
     var FIM_DA_OFERTA = new Date('2026-07-20T03:00:00Z');
     var preview = /[?&]copa=preview/.test(location.search);
     if (!preview) {
