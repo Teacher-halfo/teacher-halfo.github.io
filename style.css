@@ -10,6 +10,12 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'PixelJ10';
+    src: url('fonts/pixel-font-J10.ttf') format('truetype');
+    font-display: swap;
+}
+
 :root {
     /* core palette — brand guide v1.0 (solarpunk-terminal-pixel art) */
     --ink:        #1A1714;          /* Charcoal — primary background */
@@ -36,7 +42,8 @@
     --ember:      var(--brand-yellow);
 
     /* typography */
-    --pixel-font: 'MyPixelFont', 'Courier New', monospace;
+    --pixel-font:     'PixelJ10', 'Courier New', monospace;    /* legible retro — site-wide (2026-07-03) */
+    --pixel-original: 'MyPixelFont', 'Courier New', monospace; /* kept on card names + subtitles + popup */
     --term-font:  'MyBodyFont', 'Courier New', monospace;
     --body-font:  'MyBodyFont', 'Courier New', monospace;
 
@@ -74,6 +81,12 @@ a { color: inherit; }
    ========================================================== */
 .pixel-font { font-family: var(--pixel-font) !important; letter-spacing: 0.02em; }
 .term-font  { font-family: var(--term-font) !important; }
+
+/* Keep the ORIGINAL pixel font on card names + subtitles, and the whole pop-up.
+   Everything else uses PixelJ10 (via --pixel-font). Added 2026-07-03. */
+.biome-card .biome-title,
+.biome-card .biome-subtitle { font-family: var(--pixel-original) !important; }
+.copa-modal { --pixel-font: var(--pixel-original); }
 
 .dim-text { color: var(--leaf); }
 .accent { color: var(--ember); }
