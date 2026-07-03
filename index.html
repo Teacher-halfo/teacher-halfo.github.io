@@ -533,6 +533,8 @@
             <h2 id="leadTitle" class="lead-title pixel-font">Ganhe um parceiro de prática de inglês.</h2>
             <p id="leadDesc" class="lead-sub">Alguém pra você conversar em inglês a qualquer hora, sem vergonha de errar. Treinado com o meu material, pra ajudar você a <strong>usar o idioma de verdade</strong>, se não tem com quem falar inglês e precisa de alguém que te ajude a conversar melhor. Me diz pra onde te mando o acesso:</p>
 
+            <p id="leadBonus" class="lead-bonus pixel-font" hidden></p>
+
             <form id="leadForm" class="lead-form" novalidate>
                 <label class="lead-label pixel-font" for="leadNome">Nome</label>
                 <input class="lead-input" id="leadNome" name="nome" type="text" autocomplete="name" placeholder="Como você se chama?" required>
@@ -600,6 +602,8 @@
     .lead-title { color: var(--parchment); font-size: 1.5rem; line-height: 1.2; margin: 0 0 12px; text-shadow: 2px 2px 0 var(--ink); }
     .lead-sub { color: var(--mist); font-size: 0.98rem; line-height: 1.5; margin: 0 0 20px; }
     .lead-sub strong { color: var(--parchment); }
+    .lead-bonus { color: var(--brand-yellow); font-size: 0.8rem; line-height: 1.5; margin: 0 0 18px; padding: 10px 12px; border: 1px dashed var(--brand-yellow); }
+    .lead-bonus[hidden] { display: none; }
 
     .lead-form { display: flex; flex-direction: column; }
     .lead-label { color: var(--brand-yellow); font-size: 0.72rem; letter-spacing: 0.04em; margin: 0 0 6px; }
@@ -757,6 +761,7 @@
         eyebrow: '› de graça, e você pode começar hoje',
         title:   'Ganhe um parceiro de prática de inglês.',
         desc:    'Alguém pra você conversar em inglês a qualquer hora, sem vergonha de errar. Treinado com o meu material, pra você <strong>usar o idioma de verdade</strong>.',
+        bonus:   '',
         button:  '› Quero meu parceiro de prática',
         success: 'comecar.html',
         source:  'popup_parceiro',
@@ -764,8 +769,9 @@
       },
       oferta: {
         eyebrow: '› vaga da Copa, por tempo limitado',
-        title:   'Destrava seu inglês na Copa.',
-        desc:    'Deixa seu contato que eu te levo pra oferta, com uma condição especial pra começar agora.',
+        title:   'O plano anual da LAC tá liberado até o Brasil cair.',
+        desc:    'Se ganhar tudo, vai até a final. Se cair antes, a oferta cai junto. Deixa teu contato que eu te levo pra oferta.',
+        bonus:   'Se o Brasil for campeão, quem entrou ganha +6 meses de LAC de presente.',
         button:  '› Quero ver a oferta',
         success: 'oferta.html',
         source:  'popup_oferta',
@@ -796,6 +802,8 @@
       put('leadTitle',   cfg.title);
       put('leadDesc',    cfg.desc);
       put('leadSubmit',  cfg.button);
+      var bonusEl = document.getElementById('leadBonus');
+      if (bonusEl) { if (cfg.bonus) { bonusEl.innerHTML = cfg.bonus; bonusEl.hidden = false; } else { bonusEl.hidden = true; } }
     })();
 
     function track(n){ try { if (window.umami) umami.track(n); } catch(e){} }
