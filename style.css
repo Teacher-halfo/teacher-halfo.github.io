@@ -80,7 +80,7 @@ a { color: inherit; }
 /* ==========================================================
    TYPOGRAPHY UTILITIES
    ========================================================== */
-.pixel-font { font-family: var(--pixel-font) !important; letter-spacing: 0.06em; }
+.pixel-font { font-family: var(--pixel-font) !important; font-weight: normal; letter-spacing: 0.06em; }
 .term-font  { font-family: var(--term-font) !important; }
 
 /* Keep the ORIGINAL pixel font (tight tracking) on card names + subtitles, and BOTH pop-ups
