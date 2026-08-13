@@ -279,8 +279,7 @@
             </article>
 
             <!-- LAC -->
-            <article class="biome-card biome-featured">
-                <div class="biome-banner pixel-font">★ MAIS ESCOLHIDO</div>
+            <article class="biome-card">
                 <h3 class="biome-title pixel-font">LAC · mensal</h3>
                 <p class="biome-subtitle pixel-font">— Lang. Acq. Club —</p>
                 <p class="biome-price body-font">R$ 94,90 <span class="biome-period">/mês</span></p>
@@ -296,7 +295,8 @@
             </article>
 
             <!-- LAC ANUAL -->
-            <article class="biome-card">
+            <article class="biome-card biome-featured">
+                <div class="biome-banner pixel-font">★ MAIS ESCOLHIDO</div>
                 <h3 class="biome-title pixel-font">LAC · anual</h3>
                 <p class="biome-subtitle pixel-font">— W/ Personal Curriculum —</p>
                 <p class="biome-price body-font">R$ 949,90 <span class="biome-period">/ano</span></p>
@@ -815,6 +815,62 @@
 })();
 </script>
 
+
+
+<!-- ===== TRACKING DO MEIO DO FUNIL (2026-08-12) =====================
+     Nao mexe em markup nenhum. So escuta o que ja existe na pagina.
+     Eventos: hero_cta_metodo, video_25, video_50, video_75, video_95,
+              video_unmuted, video_ended, scroll_to_planos
+     ================================================================= -->
+<script>
+(function(){
+  function track(n){ try { if (window.umami) umami.track(n); } catch(e){} }
+
+  /* 1. clique no "ver o metodo" do hero */
+  var cta = document.querySelector('.hero-cta a[href="#metodo"]');
+  if (cta) cta.addEventListener('click', function(){ track('hero_cta_metodo'); });
+
+  /* 2. progresso do video, em % do ponto mais longe assistido de verdade.
+        cada marco dispara UMA vez so. rebobinar nao conta de novo. */
+  var v = document.getElementById('heroVideo');
+  if (v) {
+    var maxSeen = 0, wasMuted = true;
+    var marks = [
+      { p:0.25, n:'video_25', done:false },
+      { p:0.50, n:'video_50', done:false },
+      { p:0.75, n:'video_75', done:false },
+      { p:0.95, n:'video_95', done:false }
+    ];
+    v.addEventListener('timeupdate', function(){
+      var d = v.duration;
+      if (!d || !isFinite(d)) { return; }
+      if (v.currentTime > maxSeen) { maxSeen = v.currentTime; }
+      var f = maxSeen / d;
+      for (var i = 0; i < marks.length; i++) {
+        if (!marks[i].done && f >= marks[i].p) { marks[i].done = true; track(marks[i].n); }
+      }
+    });
+
+    v.addEventListener('ended', function(){ track('video_ended'); });
+
+    /* som ligado pela pessoa nos controles nativos do player */
+    v.addEventListener('volumechange', function(){
+      if (wasMuted && !v.muted) { wasMuted = false; track('video_unmuted'); }
+      else if (v.muted) { wasMuted = true; }
+    });
+  }
+
+  /* 3. chegou nos planos (dispara uma vez so) */
+  var planos = document.getElementById('planos');
+  if (planos && 'IntersectionObserver' in window) {
+    var fired = false;
+    var io = new IntersectionObserver(function(e){
+      if (e[0].isIntersecting && !fired) { fired = true; track('scroll_to_planos'); io.disconnect(); }
+    }, { threshold: 0.25 });
+    io.observe(planos);
+  }
+})();
+</script>
 
 </body>
 </html>
