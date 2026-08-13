@@ -529,67 +529,34 @@
 
 
 <!-- ====================================================================
-     LEAD POPUP · PARCEIRO DE PRÁTICA  (captura de leads)
+     POPUP DO SITE  ·  QUIZ "SEU CAMINHO"  (2026-08-12)
      --------------------------------------------------------------------
-     ATENCAO: so UM popup ativo no site por vez. ESTE eh o que esta NO AR.
-     Quando o popup de oferta entrar, REMOVA este bloco INTEIRO -- os tres
-     pedacos logo abaixo: o markup (div#leadPopup), o bloco de estilo e o
-     bloco de script -- e cole o da oferta no lugar. NUNCA os dois ao mesmo
-     tempo. Vive APENAS no index.html.
+     So UM popup ativo por vez. Este e o que esta NO AR.
+     Troque  var ACTIVE  la embaixo:
+        'quiz'   = perene. 3 perguntas -> contato -> caminho (LAC / Discord / Parceiro)
+        'oferta' = campanha. captura o contato e joga pra oferta.html
+     Abre em 10s (ou quando o mouse sai pra cima, no desktop).
+     Pra testar sem esperar e sem o bloqueio de sessao: ?popup=1 na URL.
+     Vive APENAS no index.html.
      ==================================================================== -->
-<div id="leadPopup" class="lead-overlay" role="dialog" aria-modal="true"
-     aria-labelledby="leadTitle" aria-describedby="leadDesc" hidden>
+<div id="leadPopup" class="lead-overlay" role="dialog" aria-modal="true" aria-labelledby="leadTitle" hidden>
     <div class="lead-modal terminal-window" role="document">
         <div class="terminal-bar">
             <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
-            <span class="terminal-title">Teacher Assistant</span>
-            <button type="button" class="lead-close pixel-font" id="leadClose" aria-label="close">✕</button>
+            <span class="terminal-title pixel-font">~/seu-caminho</span>
+            <button type="button" class="lead-close pixel-font" id="leadClose" aria-label="fechar">&#10005;</button>
         </div>
-        <div class="lead-body">
-            <p id="leadEyebrow" class="lead-eyebrow pixel-font">› de graça, e você pode começar hoje</p>
-            <h2 id="leadTitle" class="lead-title pixel-font">Ganhe um parceiro de prática de inglês.</h2>
-            <p id="leadDesc" class="lead-sub">Alguém pra você conversar em inglês a qualquer hora, sem vergonha de errar. Treinado com o meu material, pra ajudar você a <strong>usar o idioma de verdade</strong>, se não tem com quem falar inglês e precisa de alguém que te ajude a conversar melhor. Me diz pra onde te mando o acesso:</p>
-
-            <p id="leadBonus" class="lead-bonus pixel-font" hidden></p>
-
-            <form id="leadForm" class="lead-form" novalidate>
-                <label class="lead-label pixel-font" for="leadNome">Nome</label>
-                <input class="lead-input" id="leadNome" name="nome" type="text" autocomplete="name" placeholder="Como você se chama?" required>
-
-                <label class="lead-label pixel-font" for="leadEmail">Email</label>
-                <input class="lead-input" id="leadEmail" name="email" type="email" autocomplete="email" placeholder="seu@email.com" required>
-
-                <label class="lead-label pixel-font" for="leadZap">WhatsApp (com DDD)</label>
-                <input class="lead-input" id="leadZap" name="whatsapp" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(19) 99999-9999" required>
-
-                <label class="lead-consent" for="leadConsent">
-                    <input type="checkbox" id="leadConsent" name="consent" required>
-                    <span>Aceito receber os materiais do Heitor.</span>
-                </label>
-
-                <p class="lead-error" id="leadError" role="alert" hidden></p>
-
-                <button type="submit" class="btn-primary lead-submit pixel-font" id="leadSubmit" data-umami-event="lead_submit">› Quero meu parceiro de prática</button>
-            </form>
-        </div>
+        <div class="lead-body" id="leadBody"></div>
     </div>
 </div>
 
 <style>
-    /* ===== LEAD POPUP — usa os mesmos tokens do style.css ===== */
-    .lead-consent {
-        display: flex; gap: 8px; align-items: flex-start;
-        margin: 2px 0 4px; text-align: left;
-        font-size: 0.8rem; line-height: 1.35; cursor: pointer;
-    }
-    .lead-consent input { margin-top: 3px; flex-shrink: 0; }
+    /* ===== POPUP DO QUIZ — usa os mesmos tokens do style.css ===== */
     .lead-overlay {
         position: fixed; inset: 0; z-index: 9999;   /* acima do whatsapp-fab (200) */
         display: flex; align-items: center; justify-content: center;
-        padding: 20px;
-        background: rgba(15, 13, 10, 0.82);
-        overflow-y: auto;
-        animation: leadFade 0.25s ease;
+        padding: 20px; background: rgba(15, 13, 10, 0.86);
+        overflow-y: auto; animation: leadFade 0.25s ease;
     }
     .lead-overlay[hidden] { display: none; }
     @keyframes leadFade { from { opacity: 0; } to { opacity: 1; } }
@@ -597,221 +564,343 @@
     .lead-modal {
         width: 100%; max-width: 440px; margin: auto;
         max-height: calc(100vh - 40px);
-        display: flex; flex-direction: column;
-        background: var(--ink);
+        display: flex; flex-direction: column; background: var(--ink);
     }
     .lead-modal .terminal-bar { flex-shrink: 0; }
+    .terminal-title { color: var(--gray-light); font-size: 0.72rem; letter-spacing: 0.04em; margin-left: 6px; }
     .lead-close {
-        margin-left: auto; cursor: pointer;
-        background: transparent; border: 0;
-        color: var(--mist); font-size: 1rem; line-height: 1;
-        padding: 2px 4px;
+        margin-left: auto; cursor: pointer; background: transparent; border: 0;
+        color: var(--gray-mid); font-size: 1.1rem; line-height: 1; padding: 2px 6px;
     }
     .lead-close:hover { color: var(--brand-yellow); }
+    .lead-body { padding: 22px 22px 26px; overflow-y: auto; font-family: var(--body-font); color: var(--earth-white); }
 
-    .lead-body {
-        padding: 24px 24px 28px;
-        overflow-y: auto;
-        font-family: var(--body-font);
-        color: var(--earth-white);
+    /* barrinha de progresso */
+    .q-prog { display: flex; gap: 5px; margin: 0 0 18px; }
+    .q-prog i { flex: 1; height: 4px; background: var(--gray-deep); display: block; }
+    .q-prog i.on { background: var(--brand-yellow); }
+
+    /* pixel font so no que e curto. frase comprida vai na fonte de texto,
+       senao nao da pra ler no celular. */
+    .lead-eyebrow { font-family: var(--pixel-font); color: var(--sun); font-size: 0.7rem; letter-spacing: 0.04em; margin: 0 0 12px; }
+    .lead-title { font-family: var(--body-font); font-weight: 700; color: var(--parchment);
+                  font-size: 1.18rem; line-height: 1.4; margin: 0 0 16px; }
+    .lead-sub { color: var(--mist); font-size: 0.94rem; line-height: 1.55; margin: 0 0 18px; }
+    .lead-sub strong { color: var(--brand-yellow); }
+
+    .q-opt {
+        display: block; width: 100%; text-align: left; cursor: pointer;
+        background: var(--ink-soft); color: var(--earth-white); border: 2px solid var(--gray-deep);
+        padding: 14px; margin: 0 0 10px; font-family: var(--body-font);
+        font-size: 0.94rem; line-height: 1.45; transition: border-color 0.15s, transform 0.1s;
     }
-    .lead-eyebrow { color: var(--sun); font-size: 0.78rem; letter-spacing: 0.04em; margin: 0 0 10px; }
-    .lead-title { color: var(--parchment); font-size: 1.5rem; line-height: 1.2; margin: 0 0 12px; text-shadow: 2px 2px 0 var(--ink); }
-    .lead-sub { color: var(--mist); font-size: 0.98rem; line-height: 1.5; margin: 0 0 20px; }
-    .lead-sub strong { color: var(--parchment); }
-    .lead-bonus { color: var(--brand-yellow); font-size: 0.8rem; line-height: 1.5; margin: 0 0 18px; padding: 10px 12px; border: 1px dashed var(--brand-yellow); }
-    .lead-bonus[hidden] { display: none; }
+    .q-opt:hover, .q-opt:focus { border-color: var(--brand-yellow); outline: none; }
+    .q-opt:active { transform: translate(2px, 2px); }
+    .q-back { background: none; border: 0; color: var(--gray-mid); font-family: var(--pixel-font);
+              font-size: 0.68rem; text-decoration: underline; cursor: pointer; padding: 8px 0 0; }
 
     .lead-form { display: flex; flex-direction: column; }
-    .lead-label { color: var(--brand-yellow); font-size: 0.72rem; letter-spacing: 0.04em; margin: 0 0 6px; }
+    .lead-label { font-family: var(--pixel-font); color: var(--brand-yellow); font-size: 0.66rem; letter-spacing: 0.04em; margin: 0 0 6px; }
     .lead-input {
         background: var(--ink-soft); color: var(--earth-white);
         border: 2px solid var(--gray-deep); border-radius: 0;
-        padding: 11px 12px; margin: 0 0 16px;
-        font-family: var(--body-font); font-size: 1rem;
-        width: 100%; box-sizing: border-box;
-        transition: border-color 0.15s;
+        padding: 11px 12px; margin: 0 0 14px;
+        font-family: var(--body-font); font-size: 1rem; width: 100%;
+        box-sizing: border-box; transition: border-color 0.15s;
     }
     .lead-input::placeholder { color: var(--gray-mid); }
     .lead-input:focus { outline: none; border-color: var(--brand-yellow); }
     .lead-input.is-invalid { border-color: #d9534f; }
-
-    .lead-error {
-        background: rgba(217, 83, 79, 0.14); border: 1px solid #d9534f;
-        color: #f3b6b4; font-size: 0.85rem; line-height: 1.4;
-        padding: 8px 10px; margin: 0 0 14px;
-    }
+    .lead-consent { display: flex; gap: 8px; align-items: flex-start; margin: 2px 0 12px;
+                    font-size: 0.8rem; line-height: 1.4; cursor: pointer; color: var(--mist); }
+    .lead-consent input { margin-top: 3px; flex-shrink: 0; }
+    .lead-error { background: rgba(217,83,79,0.14); border: 1px solid #d9534f; color: #f3b6b4;
+                  font-size: 0.85rem; line-height: 1.4; padding: 8px 10px; margin: 0 0 12px; }
     .lead-error[hidden] { display: none; }
 
-    .lead-submit { width: 100%; text-align: center; font-size: 0.95rem; margin: 4px 0 0; }
-    .lead-submit:disabled { opacity: 0.6; cursor: wait; transform: none; box-shadow: 5px 5px 0 var(--ember); }
-    .lead-fineprint { color: var(--gray-mid); font-size: 0.78rem; text-align: center; margin: 12px 0 0; }
+    .lead-btn {
+        display: block; width: 100%; text-align: center; text-decoration: none; cursor: pointer;
+        font-family: var(--pixel-font); font-size: 0.82rem; letter-spacing: 0.02em; line-height: 1.35;
+        padding: 13px 14px; margin: 0 0 10px; border: 2px solid var(--ink); transition: transform 0.1s;
+    }
+    .lead-btn:active { transform: translate(2px, 2px); }
+    .lead-btn-primary { background: var(--brand-yellow); color: var(--ink) !important; box-shadow: 4px 4px 0 var(--sun); }
+    .lead-btn-alt { background: var(--ink-soft); color: var(--earth-white) !important; border-color: var(--brand-yellow); box-shadow: 4px 4px 0 var(--gray-deep); }
+    .lead-btn-wa { background: var(--solarpunk); color: var(--ink) !important; box-shadow: 4px 4px 0 #4d7326; }
+    .lead-btn-ghost { background: none; border: 0; box-shadow: none; color: var(--gray-mid);
+                      font-size: 0.7rem; text-decoration: underline; padding: 10px 0 0; margin: 0; }
+    .lead-btn:disabled { opacity: 0.6; cursor: wait; }
+
+    .res-tag { display: inline-block; font-family: var(--pixel-font); font-size: 0.64rem; letter-spacing: 0.06em;
+               background: var(--brand-yellow); color: var(--ink); border: 2px solid var(--ink); padding: 5px 9px; margin: 0 0 14px; }
+    .res-price { font-family: var(--pixel-font); color: var(--brand-yellow); font-size: 0.72rem; line-height: 1.5;
+                 margin: 0 0 16px; padding: 9px 11px; border: 1px dashed var(--brand-yellow); }
+    .btn-sep { font-family: var(--pixel-font); color: var(--gray-mid); font-size: 0.64rem; text-align: center;
+               margin: 16px 0 10px; letter-spacing: 0.04em; }
 
     @media (max-width: 600px) {
-        .lead-overlay { padding: 12px; align-items: flex-start; }
-        .lead-body { padding: 20px 18px 24px; }
-        .lead-title { font-size: 1.3rem; }
+        .lead-overlay { padding: 10px; align-items: flex-start; }
+        .lead-body { padding: 18px 16px 22px; }
+        .lead-title { font-size: 1.08rem; }
     }
-    @media (prefers-reduced-motion: reduce) {
-        .lead-overlay { animation: none; }
-    }
+    @media (prefers-reduced-motion: reduce) { .lead-overlay { animation: none; } }
 </style>
 
-
-<!-- ===== LEAD POPUP (gem | oferta) — ATIVO. Troque ACTIVE pra alternar. ===== -->
 <script>
 (function(){
+    /* ============ AJUSTE AQUI ============ */
+    var ACTIVE        = 'quiz';        // 'quiz' (perene)  |  'oferta' (campanha)
+    var DELAY_MS      = 10000;         // 10s
     var LEAD_ENDPOINT = 'https://half-o-leads.oliveira-heitor.workers.dev';
 
-    var ACTIVE = 'gem';   // 'gem' (perene) | 'oferta' (campanha de oferta)
+    var WA         = 'https://wa.me/5519991513041?text=';
+    var CAL_30     = 'https://cal.com/teacherheitor/30min';
+    var GEM        = 'https://gemini.google.com/gem/1dxyKWbdcOpqDFalahQaeXPFwgo8VuhVB?usp=sharing';
+    var DISCORD    = 'https://discord.gg/bJD7fcKxhy';
+    var LAC_ANUAL  = 'https://buy.stripe.com/14AfZigmaf0627B9w2bfO0a';
+    var LAC_MENSAL = 'https://buy.stripe.com/eVqbJ2d9YbNU4fJcIebfO09';
+    /* ===================================== */
 
-    var POPUPS = {
-      gem: {
-        eyebrow: '› de graça, e você pode começar hoje',
-        title:   'Ganhe um parceiro de prática de inglês.',
-        desc:    'Alguém pra você conversar em inglês a qualquer hora, sem vergonha de errar. Treinado com o meu material, pra você <strong>usar o idioma de verdade</strong>.',
-        bonus:   '',
-        button:  '› Quero meu parceiro de prática',
-        success: 'comecar.html',
-        source:  'popup_parceiro',
-        redirectOnFail: false
+    var QUESTIONS = [
+      { eyebrow: '› 3 perguntas, 20 segundos',
+        title:   'Como tá o seu inglês hoje?',
+        opts: [ { t: 'Travo quando tento falar.',    v: 0 },
+                { t: 'Seguro uma conversa básica.', v: 1 },
+                { t: 'Fluente-ish, só quero polir.', v: 2 } ] },
+
+      { eyebrow: '› 2 de 3',
+        title:   'Hoje, você já tem uma situação onde precisa usar o inglês?',
+        opts: [ { t: 'Não. Até consumir filme e música é difícil.', v: 0 },
+                { t: 'Não. Entendo algumas coisas, mas nunca falo.', v: 1 },
+                { t: 'Sim, já tenho onde falar. Mas preciso melhorar.', v: 2 } ] },
+
+      { eyebrow: '› última',
+        title:   'Qual é a sua meta com o inglês?',
+        opts: [ { t: 'Já tenho uma oportunidade de emprego ou estudo lá fora.', v: 2 },
+                { t: 'Quero me conectar com o mundo e chegar na informação que não chega até mim.', v: 1 },
+                { t: 'Amo filme e série, e sonho em viajar pra fora.', v: 0 } ] }
+    ];
+
+    var RESULTS = {
+      lac: {
+        tag:   'SEU CAMINHO: LAC',
+        title: 'Você não precisa de mais estudo. Precisa de um lugar pra usar.',
+        desc:  'Pelo que você respondeu, o problema não é falta de conteúdo, é falta de <strong>uso</strong>. Na LAC você pratica toda semana: a minha newsletter, atividades que realmente te fazem usar o idioma, e gente pra conversar. É o caminho mais direto pra destravar.',
+        price: 'LAC anual · R$ 949,90/ano<br>ou mensal · R$ 94,90/mês',
+        cta: [ { label: '› Entrar na LAC (anual)', url: LAC_ANUAL,  ev: 'lac_checkout_anual',  cls: 'lead-btn-primary' },
+               { label: '› Prefiro o mensal',      url: LAC_MENSAL, ev: 'lac_checkout_mensal', cls: 'lead-btn-alt' } ],
+        wa: 'Oi Heitor! Fiz o quiz no Half-o-Fluent. Queria saber mais sobre a LAC.'
       },
-      oferta: {
-        eyebrow: '› oferta por tempo limitado',
-        title:   'Oferta especial da LAC.',
-        desc:    'Deixa teu contato que eu te levo pra oferta.',
-        bonus:   '',
-        button:  '› Quero ver a oferta',
-        success: 'oferta.html',
-        source:  'popup_oferta',
-        redirectOnFail: true
+      gem: {
+        tag:   'SEU CAMINHO: PARCEIRO DE PRÁTICA',
+        title: 'Você sabe uma coisa ou outra, mas ainda não consegue se expressar.',
+        desc:  'Você trava, e não é falta de base. É falta de um lugar seguro pra errar. Eu te entrego um parceiro de prática treinado com o meu material, <strong>de graça</strong>. Fala com ele hoje. Quando quiser começar de verdade, a LAC tá aqui.',
+        price: 'grátis · começa agora',
+        cta: [ { label: '› Pegar meu parceiro de prática', url: GEM,        ev: 'gem_open',            cls: 'lead-btn-primary' },
+               { label: '› Prefiro começar hoje!',         url: LAC_MENSAL, ev: 'lac_checkout_mensal', cls: 'lead-btn-alt' } ],
+        wa: 'Oi Heitor! Fiz o quiz no Half-o-Fluent. Queria saber mais sobre o Teacher Assistant.'
+      },
+      discord: {
+        tag:   'SEU CAMINHO: DISCORD',
+        title: 'Você já fala até que bem. Falta só ser ouvido.',
+        desc:  'Seu caso não é destravar, é manter o inglês vivo. No Discord a galera pratica sem hora marcada: joga Wordle, comenta o que tá assistindo em inglês, responde quando dá. Tudo <strong>de graça</strong>.',
+        price: 'grátis · começa agora',
+        cta: [ { label: '› Entrar no Discord grátis', url: DISCORD,    ev: 'discord_join',        cls: 'lead-btn-primary' },
+               { label: '› Prefiro começar hoje!',    url: LAC_MENSAL, ev: 'lac_checkout_mensal', cls: 'lead-btn-alt' } ],
+        wa: 'Oi Heitor! Fiz o quiz no Half-o-Fluent. Queria saber mais sobre o Discord.'
       }
     };
 
-    var cfg         = POPUPS[ACTIVE] || POPUPS.gem;
-    var SUCCESS_URL = cfg.success;
-    var SEEN_KEY    = 'hof_lead_popup_seen_' + ACTIVE;
-    var DELAY_MS    = 4000;
+    var OFERTA = {
+      eyebrow: '› oferta por tempo limitado',
+      title:   'Oferta especial da LAC.',
+      desc:    'Deixa teu contato que eu te levo pra oferta.',
+      button:  '› Quero ver a oferta',
+      success: 'oferta.html'
+    };
+
+    /* PONTUAÇÃO 0-6. Quanto MAIOR, melhor o inglês e mais forte a meta.
+         0-1 => parceiro de prática   2-3 => discord   4-6 => LAC
+       ATALHO: quem tem oportunidade de emprego/estudo la fora vai direto pra LAC. */
+    function route(total, goalJob) {
+      if (goalJob)    { return 'lac'; }
+      if (total >= 4) { return 'lac'; }
+      if (total >= 2) { return 'discord'; }
+      return 'gem';
+    }
 
     var overlay = document.getElementById('leadPopup');
-    var form    = document.getElementById('leadForm');
-    if (!overlay || !form) return;
+    var body    = document.getElementById('leadBody');
+    var closeEl = document.getElementById('leadClose');
+    if (!overlay || !body) { return; }
 
-    var closeBtn   = document.getElementById('leadClose');
-    var submitBtn  = document.getElementById('leadSubmit');
-    var errorBox   = document.getElementById('leadError');
-    var nome       = document.getElementById('leadNome');
-    var email      = document.getElementById('leadEmail');
-    var zap        = document.getElementById('leadZap');
-    var consentBox = document.getElementById('leadConsent');
+    var step = 0, score = 0, goalJob = false, answers = [];
+    function track(n) { try { if (window.umami) { umami.track(n); } } catch (e) {} }
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function prog(i) {
+      var h = '<div class="q-prog">';
+      for (var k = 0; k < 4; k++) { h += '<i class="' + (k <= i ? 'on' : '') + '"></i>'; }
+      return h + '</div>';
+    }
+    function reset() { step = 0; score = 0; goalJob = false; answers = []; }
 
-    (function paint(){
-      var put = function(id, html){ var el = document.getElementById(id); if (el) el.innerHTML = html; };
-      put('leadEyebrow', cfg.eyebrow);
-      put('leadTitle',   cfg.title);
-      put('leadDesc',    cfg.desc);
-      put('leadSubmit',  cfg.button);
-      var bonusEl = document.getElementById('leadBonus');
-      if (bonusEl) { if (cfg.bonus) { bonusEl.innerHTML = cfg.bonus; bonusEl.hidden = false; } else { bonusEl.hidden = true; } }
-    })();
+    /* ---------- perguntas ---------- */
+    function renderQ() {
+      var q = QUESTIONS[step];
+      var h = prog(step) + '<p class="lead-eyebrow">' + q.eyebrow + '</p><h2 class="lead-title" id="leadTitle">' + q.title + '</h2>';
+      for (var i = 0; i < q.opts.length; i++) {
+        h += '<button type="button" class="q-opt" data-v="' + q.opts[i].v + '" data-i="' + i + '">' + q.opts[i].t + '</button>';
+      }
+      if (step > 0) { h += '<button type="button" class="q-back" id="qBack">‹ voltar</button>'; }
+      body.innerHTML = h;
 
-    function track(n){ try { if (window.umami) umami.track(n); } catch(e){} }
+      var opts = body.querySelectorAll('.q-opt');
+      for (var j = 0; j < opts.length; j++) {
+        opts[j].addEventListener('click', function () {
+          var v = parseInt(this.getAttribute('data-v'), 10);
+          var i = parseInt(this.getAttribute('data-i'), 10);
+          score += v;
+          if (step === 2 && i === 0) { goalJob = true; }
+          answers[step] = { pergunta: step + 1, opcao: i + 1, texto: this.textContent, peso: v };
+          step++;
+          if (step < QUESTIONS.length) { renderQ(); }
+          else { track('quiz_completed'); renderForm(); }
+        });
+      }
+      var back = document.getElementById('qBack');
+      if (back) {
+        back.addEventListener('click', function () {
+          step--;
+          score -= answers[step].peso;
+          if (step === 2) { goalJob = false; }
+          renderQ();
+        });
+      }
+    }
 
+    /* ---------- formulario ---------- */
+    function formHtml(eyebrow, title, sub, button) {
+      return '<p class="lead-eyebrow">' + eyebrow + '</p>' +
+        '<h2 class="lead-title" id="leadTitle">' + title + '</h2>' +
+        '<p class="lead-sub">' + sub + '</p>' +
+        '<form class="lead-form" id="leadForm" novalidate>' +
+        '<label class="lead-label" for="leadNome">Nome</label>' +
+        '<input class="lead-input" id="leadNome" type="text" autocomplete="name" placeholder="Como você se chama?" required>' +
+        '<label class="lead-label" for="leadEmail">Email</label>' +
+        '<input class="lead-input" id="leadEmail" type="email" autocomplete="email" placeholder="seu@email.com" required>' +
+        '<label class="lead-label" for="leadZap">WhatsApp (com DDD)</label>' +
+        '<input class="lead-input" id="leadZap" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(19) 99999-9999" required>' +
+        '<label class="lead-consent"><input type="checkbox" id="leadConsent" required>' +
+        '<span>Aceito receber os materiais do Heitor.</span></label>' +
+        '<p class="lead-error" id="leadError" role="alert" hidden></p>' +
+        '<button type="submit" class="lead-btn lead-btn-primary" id="leadSubmit" data-umami-event="lead_submit">' + button + '</button>' +
+        '</form>';
+    }
+
+    function wireForm(onDone) {
+      document.getElementById('leadForm').addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var n = document.getElementById('leadNome'),
+            e = document.getElementById('leadEmail'),
+            w = document.getElementById('leadZap'),
+            c = document.getElementById('leadConsent'),
+            err = document.getElementById('leadError'),
+            btn = document.getElementById('leadSubmit');
+        err.hidden = true;
+        n.classList.remove('is-invalid'); e.classList.remove('is-invalid'); w.classList.remove('is-invalid');
+
+        function bad(msg, f) { err.textContent = msg; err.hidden = false; if (f) { f.classList.add('is-invalid'); f.focus(); } }
+        if (!n.value.trim()) { return bad('Me diz seu nome, por favor.', n); }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e.value.trim())) { return bad('Esse email não parece certo. Confere pra mim?', e); }
+        if (w.value.replace(/\D/g, '').length < 10) { return bad('Coloca seu WhatsApp com DDD (só os números já valem).', w); }
+        if (!c.checked) { return bad('Marca a caixinha pra eu te liberar o acesso.', c); }
+
+        var rota = (ACTIVE === 'quiz') ? route(score, goalJob) : null;
+        var payload = {
+          nome: n.value.trim(), email: e.value.trim(), whatsapp: w.value.trim(), consent: c.checked,
+          source: (ACTIVE === 'quiz') ? 'popup_quiz' : 'popup_oferta',
+          quiz: (ACTIVE === 'quiz') ? { respostas: answers, pontos: score, rota: rota, meta_emprego: goalJob } : null,
+          page: location.href, timestamp: new Date().toISOString()
+        };
+
+        btn.disabled = true;
+        try {
+          fetch(LEAD_ENDPOINT, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload), keepalive: true
+          }).then(function (r) { track(r && r.ok ? 'lead_captured' : 'lead_failed'); })
+            .catch(function () { track('lead_failed'); });
+        } catch (x) { track('lead_failed'); }
+
+        /* nunca prende a pessoa: mostra o resultado mesmo se o worker cair.
+           se cair, o evento lead_failed acende o alerta no Umami. */
+        onDone(rota);
+      });
+    }
+
+    /* ---------- resultado ---------- */
+    function renderResult() {
+      var key = route(score, goalJob), r = RESULTS[key];
+      track('quiz_result_' + key);
+      var h = '<span class="res-tag">' + r.tag + '</span>' +
+              '<h2 class="lead-title" id="leadTitle">' + r.title + '</h2>' +
+              '<p class="lead-sub">' + r.desc + '</p>' +
+              '<p class="res-price">' + r.price + '</p>';
+      for (var i = 0; i < r.cta.length; i++) {
+        h += '<a href="' + r.cta[i].url + '" target="_blank" rel="noopener" class="lead-btn ' + r.cta[i].cls +
+             '" data-umami-event="' + r.cta[i].ev + '">' + r.cta[i].label + '</a>';
+      }
+      h += '<p class="btn-sep">— ou fala comigo direto —</p>' +
+           '<a href="' + WA + encodeURIComponent(r.wa) + '" target="_blank" rel="noopener" class="lead-btn lead-btn-wa" data-umami-event="quiz_whatsapp">› Chamar no WhatsApp</a>' +
+           '<a href="' + CAL_30 + '" target="_blank" rel="noopener" class="lead-btn lead-btn-alt" data-umami-event="quiz_call">› Marcar 30 min comigo</a>' +
+           '<button type="button" class="lead-btn lead-btn-ghost" id="leadRedo">não é bem isso? refazer</button>';
+      body.innerHTML = h;
+      document.getElementById('leadRedo').addEventListener('click', function () { reset(); track('quiz_redo'); renderQ(); });
+    }
+
+    function renderForm() {
+      body.innerHTML = prog(3) + formHtml(
+        '› pronto, já sei o teu caminho',
+        'Pra onde eu mando?',
+        'Deixa teu contato que eu te mostro o resultado e te mando o acesso.',
+        '› Ver meu resultado'
+      );
+      wireForm(function () { renderResult(); });
+    }
+
+    function renderOferta() {
+      body.innerHTML = formHtml(OFERTA.eyebrow, OFERTA.title, OFERTA.desc, OFERTA.button);
+      wireForm(function () { window.location.href = OFERTA.success; });
+    }
+
+    /* ---------- abrir / fechar ---------- */
+    var FORCE   = /[?&]popup=1/.test(location.search);
+    var SEEN_KEY = 'hof_popup_' + ACTIVE + '_v1';
     var shown = false;
-    try { if (sessionStorage.getItem(SEEN_KEY) === '1') shown = true; } catch(e){}
-    function show(){
-      if (shown) return;
+    if (!FORCE) { try { if (sessionStorage.getItem(SEEN_KEY) === '1') { shown = true; } } catch (e) {} }
+
+    function show() {
+      if (shown) { return; }
       shown = true;
-      try { sessionStorage.setItem(SEEN_KEY, '1'); } catch(e){}
+      if (!FORCE) { try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {} }
+      reset();
       overlay.hidden = false;
       document.body.style.overflow = 'hidden';
-      if (nome) nome.focus();
-      track(cfg.source + '_shown');
+      if (ACTIVE === 'oferta') { track('popup_oferta_shown'); renderOferta(); }
+      else { track('popup_quiz_shown'); track('quiz_started'); renderQ(); }
     }
-    function hide(){ overlay.hidden = true; document.body.style.overflow = ''; }
+    function hide() { overlay.hidden = true; document.body.style.overflow = ''; }
+
     if (!shown) {
-      setTimeout(show, DELAY_MS);
-      document.addEventListener('mouseout', function onExit(e){
-        if (e.clientY <= 0) { show(); document.removeEventListener('mouseout', onExit); }
+      setTimeout(show, FORCE ? 300 : DELAY_MS);
+      document.addEventListener('mouseout', function onExit(ev) {
+        if (ev.clientY <= 0) { show(); document.removeEventListener('mouseout', onExit); }
       });
     }
 
-    if (closeBtn) closeBtn.addEventListener('click', hide);
-    overlay.addEventListener('click', function(e){ if (e.target === overlay) hide(); });
-    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !overlay.hidden) hide(); });
-
-    function digits(s){ return (s || '').replace(/\D/g, ''); }
-    function showError(msg, field){
-      errorBox.textContent = msg; errorBox.hidden = false;
-      if (field){ field.classList.add('is-invalid'); field.focus(); }
-    }
-    function clearError(){
-      errorBox.hidden = true;
-      [nome, email, zap, consentBox].forEach(function(f){ if (f) f.classList.remove('is-invalid'); });
-    }
-
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      clearError();
-
-      if (!nome.value.trim())                  return showError('Me diz seu nome, por favor.', nome);
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim()))
-                                               return showError('Esse email não parece certo. Confere pra mim?', email);
-      if (digits(zap.value).length < 10)       return showError('Coloca seu WhatsApp com DDD (só os números já valem).', zap);
-      if (consentBox && !consentBox.checked)   return showError('Marca a caixinha pra eu te liberar o acesso.', consentBox);
-
-      var payload = {
-        nome:      nome.value.trim(),
-        email:     email.value.trim(),
-        whatsapp:  zap.value.trim(),
-        consent:   consentBox ? consentBox.checked : true,
-        source:    cfg.source,
-        page:      location.href,
-        timestamp: new Date().toISOString()
-      };
-
-      var notConfigured = LEAD_ENDPOINT.indexOf('COLE_AQUI') === 0;
-
-      // OFERTA (sale-first): leva pra oferta de qualquer jeito; o worker te avisa se a captura falhar
-      if (cfg.redirectOnFail) {
-        if (!notConfigured) {
-          try {
-            fetch(LEAD_ENDPOINT, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-              keepalive: true
-            });
-          } catch (err) {}
-        }
-        track('lead_captured');
-        window.location.href = SUCCESS_URL;
-        return;
-      }
-
-      // PERENE (capture-first): só avança se salvar
-      if (notConfigured) {
-        return showError('Quase lá — o cadastro ainda está sendo configurado. Tenta de novo em instantes.', null);
-      }
-      submitBtn.disabled = true;
-      var original = submitBtn.textContent;
-      submitBtn.textContent = '› enviando...';
-      fetch(LEAD_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      .then(function(res){
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        track('lead_captured');
-        window.location.href = SUCCESS_URL;
-      })
-      .catch(function(err){
-        submitBtn.disabled = false;
-        submitBtn.textContent = original;
-        showError('Deu um probleminha pra enviar. Tenta de novo? Se persistir, me chama no WhatsApp.', null);
-      });
-    });
+    if (closeEl) { closeEl.addEventListener('click', hide); }
+    overlay.addEventListener('click', function (ev) { if (ev.target === overlay) { hide(); } });
+    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && !overlay.hidden) { hide(); } });
 })();
 </script>
 
