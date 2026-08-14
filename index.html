@@ -868,13 +868,36 @@
         };
 
         btn.disabled = true;
+        var raw = JSON.stringify(payload);
+
+        /* text/plain DE PROPOSITO (2026-08-14). Com application/json o navegador
+           obriga um preflight OPTIONS antes do POST, e e esse preflight que morre
+           dentro do navegador embutido do Instagram, que e onde cai 100% do
+           trafego de anuncio. text/plain e "simple request": vai direto.
+           O worker faz request.json() e nao olha o Content-Type. */
+
+        /* plano B: sendBeacon. Sobrevive onde fetch nao vai. */
+        function beacon() {
+          try {
+            var blob = new Blob([raw], { type: 'text/plain;charset=UTF-8' });
+            if (navigator.sendBeacon && navigator.sendBeacon(LEAD_ENDPOINT, blob)) {
+              track('lead_via_beacon');   /* so no Umami, pra eu ver quanto o plano B e usado */
+              track('lead_captured');
+              return true;
+            }
+          } catch (e) {}
+          return false;
+        }
+
         try {
           fetch(LEAD_ENDPOINT, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload), keepalive: true
-          }).then(function (r) { track(r && r.ok ? 'lead_captured' : 'lead_failed'); })
-            .catch(function () { track('lead_failed'); });
-        } catch (x) { track('lead_failed'); }
+            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+            body: raw
+          }).then(function (r) {
+            if (r && r.ok) { track('lead_captured'); }
+            else if (!beacon()) { track('lead_failed'); }
+          }).catch(function () { if (!beacon()) { track('lead_failed'); } });
+        } catch (x) { if (!beacon()) { track('lead_failed'); } }
 
         /* nunca prende a pessoa: mostra o resultado mesmo se o worker cair.
            se cair, o evento lead_failed acende o alerta no Umami. */
