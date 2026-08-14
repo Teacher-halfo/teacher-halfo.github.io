@@ -2,6 +2,43 @@
 <html lang="pt-BR">
 <head>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="f7b550e4-48d6-4816-8ac1-0fb7448a039a"></script>
+
+    <!-- ===== PIXEL DA META (2026-08-14) ===============================
+         Dataset half-o-fluent.com, id 971643325947322.
+         Sem isso o Meta so consegue otimizar por "clique no link", que e
+         o motivo de 349 cliques a 3 centavos nao virarem nada.
+         ================================================================ -->
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '971643325947322');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=971643325947322&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+
+    <!-- Espelha no pixel SO os eventos que servem pra otimizar anuncio.
+         O resto continua so no Umami. Um lugar so pra mudar o mapa. -->
+    <script>
+    window.hofMeta = function (n) {
+      if (!window.fbq) { return; }
+      try {
+        if (n === 'lead_captured') { fbq('track', 'Lead'); }
+        else if (n === 'quiz_completed') { fbq('trackCustom', 'QuizCompleted'); }
+        else if (n === 'lac_checkout_anual' || n === 'lac_checkout_mensal') { fbq('track', 'InitiateCheckout'); }
+        else if (n === 'discord_join') { fbq('trackCustom', 'DiscordJoin'); }
+      } catch (e) {}
+    };
+    </script>
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -739,7 +776,10 @@
     if (!overlay || !body) { return; }
 
     var step = 0, score = 0, goalJob = false, answers = [];
-    function track(n) { try { if (window.umami) { umami.track(n); } } catch (e) {} }
+    function track(n) {
+      try { if (window.umami) { umami.track(n); } } catch (e) {}
+      if (window.hofMeta) { window.hofMeta(n); }
+    }
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     function prog(i) {
       var h = '<div class="q-prog">';
@@ -947,7 +987,17 @@
      ================================================================= -->
 <script>
 (function(){
-  function track(n){ try { if (window.umami) umami.track(n); } catch(e){} }
+  function track(n){
+    try { if (window.umami) umami.track(n); } catch(e){}
+    if (window.hofMeta) { window.hofMeta(n); }
+  }
+
+  /* 0. os links de checkout/discord usam data-umami-event no HTML, entao nao
+        passam pelo track() acima. Este listener espelha esses cliques na Meta. */
+  document.addEventListener('click', function (ev) {
+    var el = ev.target && ev.target.closest ? ev.target.closest('[data-umami-event]') : null;
+    if (el && window.hofMeta) { window.hofMeta(el.getAttribute('data-umami-event')); }
+  }, true);
 
   /* 1. clique no botao do hero (agora aponta pros planos) */
   var cta = document.querySelector('.hero-cta a[href="#planos"]');
