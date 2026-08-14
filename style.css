@@ -206,7 +206,9 @@ a { color: inherit; }
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: minmax(0, 720px) minmax(220px, 280px);
+    /* 2026-08-14: coluna unica. O video agora mora DENTRO do terminal,
+       entao nao existe mais a coluna do avatar. */
+    grid-template-columns: minmax(0, 620px);
     gap: 50px;
     align-items: center;
     justify-content: center;
@@ -296,7 +298,10 @@ a { color: inherit; }
 /* ==========================================================
    HERO TERMINAL — bigger, with headline inside
    ========================================================== */
-.hero-terminal { max-width: 720px; }
+.hero-terminal { max-width: 620px; }
+
+/* VIDEO dentro do terminal do hero (2026-08-14) */
+.hero-video-wrap { max-width: 260px; width: 100%; margin: 0 auto 24px; }
 
 .hero-headline {
     color: var(--parchment);
@@ -1329,6 +1334,7 @@ a { color: inherit; }
     /* --- Hero: drop avatar on mobile, tighten section padding --- */
     .hero { min-height: auto; padding: 48px 18px 40px; }
     .hero-avatar-stage { display: none; }
+    .hero-video-wrap { max-width: 225px; margin-bottom: 20px; }
 
     /* --- Método portrait: scale down so text isn't pushed off-screen --- */
     .about-portrait { width: 150px; }

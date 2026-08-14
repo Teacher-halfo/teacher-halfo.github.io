@@ -195,20 +195,31 @@
                 <p class="terminal-line"><span class="prompt">@</span><span class="cmd" id="boot-line">Half-o-Fluent</span></p>
                 <h1 class="hero-headline pixel-font">
                     Inglês para se<br>
-                    conectar <span class="accent">de verdade</span>,<br>
-                    em qualquer lugar.
+                    conectar <span class="accent">de verdade</span>.
                 </h1>
+
+                <!-- VIDEO NO HERO (2026-08-14). Antes morava no #metodo e so 11%
+                     chegavam nele. Toca sozinho, mudo, dentro da mesma caixa. -->
+                <div class="terminal-window hero-video-wrap">
+                    <video class="video-slot" id="heroVideo" controls playsinline autoplay muted preload="auto"
+                           poster="assets/oferta-poster.png"
+                           style="object-fit:cover;"
+                           onplay="window.umami && umami.track('hero_video_play')">
+                        <source src="assets/a-diferenca.mp4" type="video/mp4">
+                        Seu navegador não suporta vídeo embutido.
+                    </video>
+                </div>
+
                 <p class="hero-sub">Sem gramátiquinha que ninguém liga. Sem aquele avançado que não sabe falar. Só prática de verdade, desde o primeiro dia.</p>
                 <div class="hero-cta">
-                    <a href="#metodo" class="btn-ghost pixel-font">› ver o método</a>
+                    <!-- 2026-08-14: era um link fantasma (btn-ghost) pro #metodo e levou
+                         0 cliques em 353 visitantes. Agora e botao de verdade e aponta
+                         pros planos, porque o video no hero ja faz o papel do #metodo. -->
+                    <a href="#planos" class="btn-primary pixel-font">› ver os planos</a>
                 </div>
             </div>
         </div>
 
-        <div class="hero-avatar-stage">
-            <!-- Avatar padrão. Durante campanhas, trocar por uma versão temática se quiser. -->
-            <img src="assets/heitor-mug.png" alt="Teacher Heitor" class="hero-avatar-img">
-        </div>
     </div>
 </header>
 
@@ -221,16 +232,7 @@
 
         <div class="about-layout">
             <div class="about-portrait-wrap">
-                <!-- VÍDEO: toca sozinho (mudo). assets/a-diferenca.mp4 — carrega sozinho, sem YouTube. -->
-                <div class="terminal-window" style="max-width:330px; width:100%; margin:0 auto;">
-                    <video class="video-slot" id="heroVideo" controls playsinline autoplay muted preload="auto"
-                           poster="assets/oferta-poster.png"
-                           style="object-fit:cover;"
-                           onplay="window.umami && umami.track('hero_video_play')">
-                        <source src="assets/a-diferenca.mp4" type="video/mp4">
-                        Seu navegador não suporta vídeo embutido.
-                    </video>
-                </div>
+                <img src="assets/heitor-mug.png" alt="Teacher Heitor" class="about-portrait">
             </div>
 
             <div class="about-text">
@@ -614,6 +616,8 @@
     .lead-consent { display: flex; gap: 8px; align-items: flex-start; margin: 2px 0 12px;
                     font-size: 0.8rem; line-height: 1.4; cursor: pointer; color: var(--mist); }
     .lead-consent input { margin-top: 3px; flex-shrink: 0; }
+    .lead-note { font-size: 0.78rem; line-height: 1.45; color: var(--mist);
+                 text-align: center; margin: 10px 0 0; }
     .lead-error { background: rgba(217,83,79,0.14); border: 1px solid #d9534f; color: #f3b6b4;
                   font-size: 0.85rem; line-height: 1.4; padding: 8px 10px; margin: 0 0 12px; }
     .lead-error[hidden] { display: none; }
@@ -762,6 +766,7 @@
           score += v;
           if (step === 2 && i === 0) { goalJob = true; }
           answers[step] = { pergunta: step + 1, opcao: i + 1, texto: this.textContent, peso: v };
+          track('quiz_a' + (step + 1));   /* quiz_a1 / quiz_a2 / quiz_a3 = respondeu a pergunta N */
           step++;
           if (step < QUESTIONS.length) { renderQ(); }
           else { track('quiz_completed'); renderForm(); }
@@ -786,14 +791,11 @@
         '<form class="lead-form" id="leadForm" novalidate>' +
         '<label class="lead-label" for="leadNome">Nome</label>' +
         '<input class="lead-input" id="leadNome" type="text" autocomplete="name" placeholder="Como você se chama?" required>' +
-        '<label class="lead-label" for="leadEmail">Email</label>' +
-        '<input class="lead-input" id="leadEmail" type="email" autocomplete="email" placeholder="seu@email.com" required>' +
         '<label class="lead-label" for="leadZap">WhatsApp (com DDD)</label>' +
         '<input class="lead-input" id="leadZap" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(19) 99999-9999" required>' +
-        '<label class="lead-consent"><input type="checkbox" id="leadConsent" required>' +
-        '<span>Aceito receber os materiais do Heitor.</span></label>' +
         '<p class="lead-error" id="leadError" role="alert" hidden></p>' +
-        '<button type="submit" class="lead-btn lead-btn-primary" id="leadSubmit" data-umami-event="lead_submit">' + button + '</button>' +
+        '<button type="submit" class="lead-btn lead-btn-primary" id="leadSubmit">' + button + '</button>' +
+        '<p class="lead-note">Ao continuar, você receberá os meus materiais na próxima página!</p>' +
         '</form>';
     }
 
@@ -801,23 +803,22 @@
       document.getElementById('leadForm').addEventListener('submit', function (ev) {
         ev.preventDefault();
         var n = document.getElementById('leadNome'),
-            e = document.getElementById('leadEmail'),
             w = document.getElementById('leadZap'),
-            c = document.getElementById('leadConsent'),
             err = document.getElementById('leadError'),
             btn = document.getElementById('leadSubmit');
         err.hidden = true;
-        n.classList.remove('is-invalid'); e.classList.remove('is-invalid'); w.classList.remove('is-invalid');
+        n.classList.remove('is-invalid'); w.classList.remove('is-invalid');
 
         function bad(msg, f) { err.textContent = msg; err.hidden = false; if (f) { f.classList.add('is-invalid'); f.focus(); } }
         if (!n.value.trim()) { return bad('Me diz seu nome, por favor.', n); }
-        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e.value.trim())) { return bad('Esse email não parece certo. Confere pra mim?', e); }
         if (w.value.replace(/\D/g, '').length < 10) { return bad('Coloca seu WhatsApp com DDD (só os números já valem).', w); }
-        if (!c.checked) { return bad('Marca a caixinha pra eu te liberar o acesso.', c); }
+
+        /* so conta como envio DEPOIS que passou na validacao. */
+        track('lead_submit');
 
         var rota = (ACTIVE === 'quiz') ? route(score, goalJob) : null;
         var payload = {
-          nome: n.value.trim(), email: e.value.trim(), whatsapp: w.value.trim(), consent: c.checked,
+          nome: n.value.trim(), email: '', whatsapp: w.value.trim(), consent: true,
           source: (ACTIVE === 'quiz') ? 'popup_quiz' : 'popup_oferta',
           quiz: (ACTIVE === 'quiz') ? { respostas: answers, pontos: score, rota: rota, meta_emprego: goalJob } : null,
           page: location.href, timestamp: new Date().toISOString()
@@ -887,15 +888,48 @@
       overlay.hidden = false;
       document.body.style.overflow = 'hidden';
       if (ACTIVE === 'oferta') { track('popup_oferta_shown'); renderOferta(); }
-      else { track('popup_quiz_shown'); track('quiz_started'); renderQ(); }
+      else { track('popup_quiz_shown'); renderQ(); }
     }
     function hide() { overlay.hidden = true; document.body.style.overflow = ''; }
 
+    /* GATILHO (2026-08-14): nao abre mais por tempo. So abre quando a pessoa
+       ROLA ate o #metodo, ou seja, ja demonstrou interesse. E NUNCA abre por
+       cima de um video que esta tocando na tela: se estiver, guarda o pedido e
+       abre quando o video pausar, acabar, ou sair da tela. */
+    var heroV = document.getElementById('heroVideo');
+    var vInView = false, pending = false;
+
+    function videoBusy() { return !!(heroV && vInView && !heroV.paused && !heroV.ended); }
+    function request()   { if (shown) { return; } if (videoBusy()) { pending = true; return; } show(); }
+    function release()   { if (pending && !videoBusy()) { pending = false; show(); } }
+
+    if (heroV) {
+      heroV.addEventListener('pause', release);
+      /* video acabou = assistiu ate o fim. Melhor momento possivel pra perguntar. */
+      heroV.addEventListener('ended', function () { release(); request(); });
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (e) { vInView = e[0].isIntersecting; release(); },
+                                 { threshold: 0.35 }).observe(heroV);
+      } else { vInView = true; }
+    }
+
     if (!shown) {
-      setTimeout(show, FORCE ? 300 : DELAY_MS);
-      document.addEventListener('mouseout', function onExit(ev) {
-        if (ev.clientY <= 0) { show(); document.removeEventListener('mouseout', onExit); }
-      });
+      if (FORCE) {
+        setTimeout(show, 300);
+      } else {
+        var metodo = document.getElementById('metodo');
+        if (metodo && 'IntersectionObserver' in window) {
+          var mio = new IntersectionObserver(function (e) {
+            if (e[0].isIntersecting) { mio.disconnect(); request(); }
+          }, { rootMargin: '-45% 0px -45% 0px' });
+          mio.observe(metodo);
+        } else {
+          setTimeout(request, DELAY_MS);   /* fallback pra navegador sem IntersectionObserver */
+        }
+        document.addEventListener('mouseout', function onExit(ev) {
+          if (ev.clientY <= 0) { request(); document.removeEventListener('mouseout', onExit); }
+        });
+      }
     }
 
     if (closeEl) { closeEl.addEventListener('click', hide); }
@@ -915,9 +949,9 @@
 (function(){
   function track(n){ try { if (window.umami) umami.track(n); } catch(e){} }
 
-  /* 1. clique no "ver o metodo" do hero */
-  var cta = document.querySelector('.hero-cta a[href="#metodo"]');
-  if (cta) cta.addEventListener('click', function(){ track('hero_cta_metodo'); });
+  /* 1. clique no botao do hero (agora aponta pros planos) */
+  var cta = document.querySelector('.hero-cta a[href="#planos"]');
+  if (cta) cta.addEventListener('click', function(){ track('hero_cta_planos'); });
 
   /* 2. progresso do video, em % do ponto mais longe assistido de verdade.
         cada marco dispara UMA vez so. rebobinar nao conta de novo. */
@@ -949,7 +983,18 @@
     });
   }
 
-  /* 3. chegou nos planos (dispara uma vez so) */
+  /* 3. chegou no metodo. com o video no hero, ESTE virou o termometro de
+        scroll (antes era o hero_video_play). dispara uma vez so. */
+  var metodoSec = document.getElementById('metodo');
+  if (metodoSec && 'IntersectionObserver' in window) {
+    var mFired = false;
+    var mObs = new IntersectionObserver(function(e){
+      if (e[0].isIntersecting && !mFired) { mFired = true; track('scroll_to_metodo'); mObs.disconnect(); }
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    mObs.observe(metodoSec);
+  }
+
+  /* 4. chegou nos planos (dispara uma vez so) */
   var planos = document.getElementById('planos');
   if (planos && 'IntersectionObserver' in window) {
     var fired = false;
