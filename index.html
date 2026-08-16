@@ -773,12 +773,31 @@
       return 'gem';
     }
 
+    /* Resumo curto das 3 respostas, pra levar contexto pra fora do popup
+       (WhatsApp / notas do Cal.com), sem precisar reabrir o quiz. */
+    function quizSummary() {
+      var lines = [];
+      for (var i = 0; i < answers.length; i++) {
+        if (answers[i]) { lines.push('Q' + (i + 1) + ': ' + answers[i].texto); }
+      }
+      return lines.join(' | ');
+    }
+
+    /* Link do Cal.com com nome/notas pre-preenchidos (o Cal.com aceita isso
+       via querystring nativamente: ?name=...&notes=...). Sem nome quando
+       ainda nao foi digitado (ex: botao na propria tela de captura). */
+    function calLink(notes, nome) {
+      var url = CAL_30 + '?notes=' + encodeURIComponent(notes);
+      if (nome) { url += '&name=' + encodeURIComponent(nome); }
+      return url;
+    }
+
     var overlay = document.getElementById('leadPopup');
     var body    = document.getElementById('leadBody');
     var closeEl = document.getElementById('leadClose');
     if (!overlay || !body) { return; }
 
-    var step = 0, score = 0, goalJob = false, answers = [];
+    var step = 0, score = 0, goalJob = false, answers = [], leadNome = '';
     function track(n) {
       try { if (window.umami) { umami.track(n); } } catch (e) {}
       if (window.hofMeta) { window.hofMeta(n); }
@@ -856,6 +875,8 @@
         if (!n.value.trim()) { return bad('Me diz seu nome, por favor.', n); }
         if (w.value.replace(/\D/g, '').length < 10) { return bad('Coloca seu WhatsApp com DDD (só os números já valem).', w); }
 
+        leadNome = n.value.trim();   /* guarda pra pre-preencher o Cal.com no resultado */
+
         /* so conta como envio DEPOIS que passou na validacao. */
         track('lead_submit');
 
@@ -917,21 +938,35 @@
         h += '<a href="' + r.cta[i].url + '" target="_blank" rel="noopener" class="lead-btn ' + r.cta[i].cls +
              '" data-umami-event="' + r.cta[i].ev + '">' + r.cta[i].label + '</a>';
       }
+      var notes = 'Caminho: ' + r.tag.replace('SEU CAMINHO: ', '') + ' | ' + quizSummary();
       h += '<p class="btn-sep">— ou fala comigo direto —</p>' +
            '<a href="' + WA + encodeURIComponent(r.wa) + '" target="_blank" rel="noopener" class="lead-btn lead-btn-wa" data-umami-event="quiz_whatsapp">› Chamar no WhatsApp</a>' +
-           '<a href="' + CAL_30 + '" target="_blank" rel="noopener" class="lead-btn lead-btn-alt" data-umami-event="quiz_call">› Marcar 30 min comigo</a>' +
+           '<a href="' + calLink(notes, leadNome) + '" target="_blank" rel="noopener" class="lead-btn lead-btn-alt" data-umami-event="quiz_call">› Marcar 30 min comigo</a>' +
            '<button type="button" class="lead-btn lead-btn-ghost" id="leadRedo">não é bem isso? refazer</button>';
       body.innerHTML = h;
       document.getElementById('leadRedo').addEventListener('click', function () { reset(); track('quiz_redo'); renderQ(); });
     }
 
     function renderForm() {
+      /* Escape hatch (2026-08-16): pra quem chegou ate aqui, ja respondeu o
+         quiz inteiro, mas nao quer digitar nome/whatsapp agora. Em vez de
+         perder essa pessoa, oferece falar direto, sem formulario. So existe
+         no fluxo do quiz (ACTIVE === 'quiz'), a oferta continua sem isso. */
+      var key = (ACTIVE === 'quiz') ? route(score, goalJob) : null;
+      var r = key ? RESULTS[key] : null;
+      var escapeHatch = '';
+      if (r) {
+        var notes = 'Caminho: ' + r.tag.replace('SEU CAMINHO: ', '') + ' | ' + quizSummary() + ' (não quis deixar contato pelo formulário)';
+        escapeHatch = '<p class="btn-sep">— ou fala comigo direto —</p>' +
+          '<a href="' + WA + encodeURIComponent(r.wa) + '" target="_blank" rel="noopener" class="lead-btn lead-btn-wa" data-umami-event="capture_whatsapp">› Chamar no WhatsApp</a>' +
+          '<a href="' + calLink(notes, '') + '" target="_blank" rel="noopener" class="lead-btn lead-btn-alt" data-umami-event="capture_call">› Marcar 30 min comigo</a>';
+      }
       body.innerHTML = prog(3) + formHtml(
         '› pronto, já sei o teu caminho',
         'Pra onde eu mando?',
         'Deixa teu contato que eu te mostro o resultado e te mando o acesso.',
         '› Ver meu resultado'
-      );
+      ) + escapeHatch;
       wireForm(function () { renderResult(); });
     }
 
