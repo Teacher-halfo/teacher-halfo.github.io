@@ -774,8 +774,15 @@
     }
 
     /* Resumo curto das 3 respostas, pra levar contexto pra fora do popup
-       (WhatsApp / notas do Cal.com), sem precisar reabrir o quiz. */
+       (WhatsApp / notas do Cal.com), sem precisar reabrir o quiz.
+       redirectResumo (2026-08-16): quando o resultado vem de volta por
+       redirect do worker (ver "resultado por redirect" mais abaixo), a
+       pagina recarregou e "answers" esta vazio de novo, entao usa o resumo
+       que a propria pagina mandou pro worker antes de navegar, e que o
+       worker devolveu na URL. */
+    var redirectResumo = null;
     function quizSummary() {
+      if (redirectResumo != null) { return redirectResumo; }
       var lines = [];
       for (var i = 0; i < answers.length; i++) {
         if (answers[i]) { lines.push('Q' + (i + 1) + ': ' + answers[i].texto); }
@@ -885,77 +892,70 @@
           nome: n.value.trim(), email: '', whatsapp: w.value.trim(), consent: true,
           source: (ACTIVE === 'quiz') ? 'popup_quiz' : 'popup_oferta',
           quiz: (ACTIVE === 'quiz') ? { respostas: answers, pontos: score, rota: rota, meta_emprego: goalJob } : null,
+          resumo: (ACTIVE === 'quiz') ? quizSummary() : '',
           page: location.href, timestamp: new Date().toISOString()
         };
 
         btn.disabled = true;
 
-        /* ENVIO POR FORM, NAO POR FETCH (2026-08-16, 3a rodada do dia).
-           Historico: primeiro texto/plain+sendBeacon (evitava preflight, mas
-           sendBeacon so confirma que ENFILEIROU, nunca se o worker recebeu).
-           Depois fetch+keepalive (aguenta a aba fechando, mas nem todo
-           navegador embutido suporta keepalive direito). Depois fetch+
-           keepalive com sendBeacon de reforco no pagehide. NENHUMA dessas
-           explicava o caso real: Heitor testou com a noiva, ela preencheu,
-           apertou enviar, FICOU na tela, e mesmo assim nada chegou. Isso nao
-           e problema de aba fechando, e o proprio fetch/keepalive/sendBeacon
-           que o navegador do Instagram pode simplesmente nao entregar.
+        /* NAVEGACAO DE PAGINA INTEIRA, NAO IFRAME (2026-08-16, 4a rodada do
+           dia). Historico completo no commit, resumo: text/plain+sendBeacon,
+           depois fetch+keepalive, depois +sendBeacon de reforco, depois
+           <form> pra um iframe escondido. NENHUMA sobreviveu ao navegador do
+           Instagram no iPhone/iPad, mesmo com a pessoa preenchendo, apertando
+           enviar, e ficando na tela. O mesmo iframe escondido funcionou
+           perfeito no Safari do mesmo aparelho, entao nao e bug generico do
+           iOS, e especificamente o navegador do Instagram. Pesquisa (Felix
+           Krause / krausefx.com) explica o motivo: esse navegador injeta um
+           script proprio (pcm.js) em toda pagina visitada, que fica de olho
+           em todo toque em botao e ativamente procura iframes na pagina,
+           documentado como causa de "problemas e travamentos" em sites de
+           terceiro.
 
-           Entao trocamos o mecanismo inteiro: um <form> comum, mandado pra um
-           <iframe> escondido. Isso e a coisa mais basica que existe na web,
-           funciona em qualquer navegador (embutido ou nao) porque e assim que
-           formularios funcionavam antes de fetch/XHR existirem, e nao passa
-           por CORS (CORS so vale pra fetch/XHR lendo a resposta, nao pra
-           navegacao de formulario). A troca: como a resposta cai numa origem
-           diferente (o worker), o JS aqui NAO CONSEGUE mais ler se deu certo.
-           Entao paramos de tentar adivinhar lead_captured vs lead_failed no
-           cliente, so registramos lead_sent (enviado, sem confirmacao). Quem
-           confirma de verdade agora e so o Discord, que o worker dispara
-           sempre, sucesso ou falha, com o motivo quando falha (worker.js
-           precisa aceitar form-urlencoded alem de JSON, ver mudanca junto). */
-        try {
-          var ifr = document.getElementById('leadDeliveryFrame');
-          if (!ifr) {
-            ifr = document.createElement('iframe');
-            ifr.name = 'leadDeliveryFrame';
-            ifr.id = 'leadDeliveryFrame';
-            ifr.style.display = 'none';
-            ifr.setAttribute('aria-hidden', 'true');
-            document.body.appendChild(ifr);
-          }
-          var f = document.createElement('form');
-          f.method = 'POST';
-          f.action = LEAD_ENDPOINT;
-          f.target = 'leadDeliveryFrame';
-          f.style.display = 'none';
-          function addHidden(name, value) {
-            var inp = document.createElement('input');
-            inp.type = 'hidden'; inp.name = name; inp.value = value == null ? '' : value;
-            f.appendChild(inp);
-          }
-          addHidden('nome', payload.nome);
-          addHidden('email', payload.email);
-          addHidden('whatsapp', payload.whatsapp);
-          addHidden('consent', 'true');
-          addHidden('source', payload.source);
-          addHidden('quiz', payload.quiz ? JSON.stringify(payload.quiz) : '');
-          addHidden('page', payload.page);
-          addHidden('timestamp', payload.timestamp);
-          document.body.appendChild(f);
-          f.submit();
-          setTimeout(function () { f.remove(); }, 2000);
-          track('lead_sent');
-        } catch (x) { track('lead_failed'); }
-
-        /* nunca prende a pessoa: mostra o resultado mesmo antes do envio confirmar.
-           quem confirma se salvou de verdade agora e o Discord (worker.js), nao o Umami. */
-        onDone(rota);
+           Nenhum truque de codigo escapa disso com confiabilidade (pesquisa
+           de mercado confirma: "nenhum servico contorna com confianca o
+           navegador embutido da Meta no iOS"), MAS uma navegacao de pagina
+           INTEIRA (sem iframe, sem fetch, sem beacon, literalmente o
+           navegador trocando de pagina) e o unico primitivo que o script
+           deles nao pode bloquear sem quebrar a navegacao normal do proprio
+           Instagram (que precisa de link/formulario funcionando pra existir).
+           Entao a pagina agora navega pra valer pro worker, que processa o
+           lead e manda de volta um redirect 303 pra ca com o resultado do
+           quiz na URL (ver "resultado por redirect" mais abaixo), sem exigir
+           nenhum toque extra da pessoa, sem faixa de aviso, sem pedir pra
+           abrir no Safari. O worker.js decide o formato da resposta agora
+           (nao da mais pra ler aqui, e navegacao de pagina de verdade). */
+        var f2 = document.createElement('form');
+        f2.method = 'POST';
+        f2.action = LEAD_ENDPOINT;
+        f2.style.display = 'none';
+        function addHidden(name, value) {
+          var inp = document.createElement('input');
+          inp.type = 'hidden'; inp.name = name; inp.value = value == null ? '' : value;
+          f2.appendChild(inp);
+        }
+        addHidden('nome', payload.nome);
+        addHidden('email', payload.email);
+        addHidden('whatsapp', payload.whatsapp);
+        addHidden('consent', 'true');
+        addHidden('source', payload.source);
+        addHidden('quiz', payload.quiz ? JSON.stringify(payload.quiz) : '');
+        addHidden('resumo', payload.resumo);
+        addHidden('page', payload.page);
+        addHidden('timestamp', payload.timestamp);
+        document.body.appendChild(f2);
+        f2.submit();   /* a pagina navega a partir daqui. nada depois disso e garantido rodar. */
       });
     }
 
     /* ---------- resultado ---------- */
-    function renderResult() {
-      var key = route(score, goalJob), r = RESULTS[key];
+    function renderResult(forceKey) {
+      /* forceKey (2026-08-16): usado quando o resultado vem de volta por
+         redirect do worker, ai usa a rota que o worker ja calculou em vez de
+         recalcular com score/goalJob (que estao zerados de novo apos o
+         reload da pagina). */
+      var key = forceKey || route(score, goalJob), r = RESULTS[key];
+      if (!r) { key = route(score, goalJob); r = RESULTS[key]; }  /* forceKey invalido/desconhecido: cai pro calculo normal */
       track('quiz_result_' + key);
       var h = '<span class="res-tag">' + r.tag + '</span>' +
               '<h2 class="lead-title" id="leadTitle">' + r.title + '</h2>' +
@@ -1000,6 +1000,12 @@
     }
 
     function renderOferta() {
+      /* ATENCAO (2026-08-16): desde a troca do envio pra navegacao de pagina
+         inteira, wireForm() nunca mais chama esse onDone, a pagina ja
+         navegou pro worker antes disso rodar. ACTIVE = 'quiz' hoje, esse
+         modo 'oferta' fica dormente, entao deixei assim, mas se reativar a
+         campanha isso precisa de ajuste (o worker.js so sabe redirecionar de
+         volta pro site do quiz, nao pra OFERTA.success). */
       body.innerHTML = formHtml(OFERTA.eyebrow, OFERTA.title, OFERTA.desc, OFERTA.button);
       wireForm(function () { window.location.href = OFERTA.success; });
     }
@@ -1021,6 +1027,31 @@
       else { track('popup_quiz_shown'); renderQ(); }
     }
     function hide() { overlay.hidden = true; document.body.style.overflow = ''; }
+
+    /* RESULTADO POR REDIRECT (2026-08-16): quando a pagina volta do worker
+       depois do envio do lead (ver "NAVEGACAO DE PAGINA INTEIRA" no
+       wireForm), a URL carrega ?leadResult=1&rota=...&nome=...&resumo=...
+       &saved=... . Reabre o popup direto na tela de resultado, sem repetir
+       o quiz, sem depender de nenhum estado que a pagina tinha antes de
+       navegar (tudo vem da propria URL, nao de sessionStorage). */
+    (function () {
+      try {
+        var qs = new URLSearchParams(location.search);
+        if (qs.get('leadResult') !== '1') { return; }
+        var rota = qs.get('rota') || '';
+        leadNome = qs.get('nome') || '';
+        redirectResumo = qs.get('resumo') || '';
+        var saved = qs.get('saved');
+        shown = true;
+        if (!FORCE) { try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {} }
+        reset();
+        overlay.hidden = false;
+        document.body.style.overflow = 'hidden';
+        track('lead_result_view' + (saved === '0' ? '_unconfirmed' : ''));
+        renderResult(rota || null);
+        try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+      } catch (e) {}
+    })();
 
     /* GATILHO (2026-08-14): nao abre mais por tempo. So abre quando a pessoa
        ROLA ate o #metodo, ou seja, ja demonstrou interesse. E NUNCA abre por
