@@ -1,6 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="f7b550e4-48d6-4816-8ac1-0fb7448a039a"></script>
+
+    <!-- ===== PIXEL DA META (2026-08-16) ===============================
+         Mesmo dataset do index.html: half-o-fluent.com, id 971643325947322.
+         Esta pagina agora e o destino pos-pagamento dos links do Stripe,
+         entao e AQUI que o evento Purchase nasce.
+         ================================================================ -->
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '971643325947322');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=971643325947322&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,7 +55,7 @@
     <div style="position: relative; z-index: 1;">
         <p class="welcome-banner pixel-font">★ WELCOME ABOARD! ★</p>
         <h1 class="welcome-headline pixel-font">Você já está pronto.<br>Bem-vindo ao Half-o-Fluent.</h1>
-        <p class="welcome-sub">Pagamento confirmado. Sua assinatura já está ativa e renova todo mês. Se quiser cancelar, é só me avisar. Vamos te colocar lá em 4 passos.</p>
+        <p class="welcome-sub" id="welcome-sub">Pagamento confirmado. Sua assinatura já está ativa. Se quiser cancelar, é só me avisar. Vamos te colocar lá em 4 passos.</p>
         <img src="assets/heitor-intro-2.png" alt="Teacher Heitor comemorando" class="welcome-avatar">
     </div>
 </header>
@@ -115,6 +140,78 @@
     <svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     <span>Conversar com o Heitor no WhatsApp</span>
 </a>
+
+<!-- ==================== COMPRA: UMAMI + PIXEL (2026-08-16) ====================
+     Os links de pagamento do Stripe agora terminam aqui, com ?plano=anual ou
+     ?plano=mensal. Chegar nesta pagina COM esse parametro e a prova de que o
+     pagamento passou, entao e aqui que disparam:
+
+       Umami : purchase_confirmed  +  purchase_anual / purchase_mensal
+       Meta  : Purchase (com valor em BRL)
+
+     Sem ?plano= na URL nao dispara NADA de compra. Isso e de proposito: quem
+     salvou o link nos favoritos, ou volta pra pegar o link do Discord de novo,
+     nao pode contar como venda.
+
+     Trava de recarga: uma vez disparado, guarda uma marca na sessionStorage.
+     Dar F5 na pagina nao conta de novo.
+
+     ATENCAO: o valor abaixo e o preco de tabela. Quem paga com cupom gera um
+     Purchase com valor cheio aqui. Pro caixa de verdade, Stripe sempre.
+     ========================================================================== -->
+<script>
+(function () {
+  var PLANOS = {
+    anual:  { valor: 949.90, evento: 'purchase_anual',  texto: 'Pagamento confirmado. Seu plano anual já está ativo, e você tem 12 meses pela frente. Vamos te colocar lá em 4 passos.' },
+    mensal: { valor:  94.90, evento: 'purchase_mensal', texto: 'Pagamento confirmado. Sua assinatura já está ativa e renova todo mês. Se quiser cancelar, é só me avisar. Vamos te colocar lá em 4 passos.' }
+  };
+
+  var plano, marca, jaContou;
+  try { plano = new URLSearchParams(window.location.search).get('plano'); } catch (e) { plano = null; }
+  var p = plano && PLANOS[plano];
+  if (!p) { return; }
+
+  /* copy da pagina fala a lingua do plano certo */
+  try {
+    var sub = document.getElementById('welcome-sub');
+    if (sub) { sub.textContent = p.texto; }
+  } catch (e) {}
+
+  /* trava de recarga */
+  marca = 'hof_compra_' + plano;
+  try { jaContou = window.sessionStorage.getItem(marca) === '1'; } catch (e) { jaContou = false; }
+  if (jaContou) { return; }
+  try { window.sessionStorage.setItem(marca, '1'); } catch (e) {}
+
+  function dispara() {
+    try {
+      if (window.umami) {
+        umami.track('purchase_confirmed', { plano: plano });
+        umami.track(p.evento);
+      }
+    } catch (e) {}
+    try {
+      if (window.fbq) {
+        fbq('track', 'Purchase', { value: p.valor, currency: 'BRL', content_name: 'LAC ' + plano });
+      }
+    } catch (e) {}
+  }
+
+  /* o script do Umami tem defer, entao pode nao existir ainda no parse.
+     tenta agora e tenta de novo depois que a pagina terminar de carregar. */
+  var mandou = false;
+  function tenta() {
+    if (mandou) { return; }
+    if (window.umami || window.fbq) { mandou = true; dispara(); }
+  }
+  tenta();
+  if (!mandou) {
+    window.addEventListener('load', tenta);
+    setTimeout(tenta, 1500);
+    setTimeout(function () { if (!mandou) { mandou = true; dispara(); } }, 4000);
+  }
+})();
+</script>
 
 </body>
 </html>
