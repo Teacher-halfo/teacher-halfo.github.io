@@ -904,14 +904,24 @@
            mesmo quando nada foi salvo (foi o que aconteceu no teste de 16/08).
            keepalive faz esse MESMO fetch sobreviver ao fechamento da aba/app,
            e ainda devolve uma resposta de verdade, entao lead_captured so acende
-           quando o worker confirmar (r.ok), sem precisar de um plano B separado. */
+           quando o worker confirmar, sem precisar de um plano B separado. */
+        /* checa o campo "saved" do corpo, nao so o status HTTP (2026-08-16).
+           A versao nova do worker.js (que trata falha ao salvar no GitHub)
+           sempre responde 200 e usa { ok:true, saved:false } pra sinalizar que
+           NAO conseguiu salvar. Se so olhasse r.ok, esse caso ia acender
+           lead_captured mesmo com o lead perdido. Se o corpo nao tiver o campo
+           "saved" (worker antigo, sem essa checagem), assume sucesso pelo r.ok
+           normal, pra nao quebrar nada antes do worker novo ser publicado. */
         try {
           fetch(LEAD_ENDPOINT, {
             method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
             body: raw, keepalive: true
           }).then(function (r) {
-            if (r && r.ok) { track('lead_captured'); }
-            else { track('lead_failed'); }
+            if (!r || !r.ok) { track('lead_failed'); return; }
+            r.json().then(function (data) {
+              var saved = data && typeof data.saved === 'boolean' ? data.saved : true;
+              track(saved ? 'lead_captured' : 'lead_failed');
+            }).catch(function () { track('lead_captured'); });
           }).catch(function () { track('lead_failed'); });
         } catch (x) { track('lead_failed'); }
 
