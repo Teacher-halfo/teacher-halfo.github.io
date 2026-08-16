@@ -897,28 +897,23 @@
            trafego de anuncio. text/plain e "simple request": vai direto.
            O worker faz request.json() e nao olha o Content-Type. */
 
-        /* plano B: sendBeacon. Sobrevive onde fetch nao vai. */
-        function beacon() {
-          try {
-            var blob = new Blob([raw], { type: 'text/plain;charset=UTF-8' });
-            if (navigator.sendBeacon && navigator.sendBeacon(LEAD_ENDPOINT, blob)) {
-              track('lead_via_beacon');   /* so no Umami, pra eu ver quanto o plano B e usado */
-              track('lead_captured');
-              return true;
-            }
-          } catch (e) {}
-          return false;
-        }
-
+        /* keepalive:true (2026-08-16). Antes tinha um plano B com sendBeacon pra
+           sobreviver a pessoa fechando a aba no meio do envio, mas sendBeacon so
+           confirma que ENFILEIROU o pedido, nunca se o worker recebeu de verdade.
+           Isso deixava a tela mostrar sucesso e o Umami marcar lead_captured
+           mesmo quando nada foi salvo (foi o que aconteceu no teste de 16/08).
+           keepalive faz esse MESMO fetch sobreviver ao fechamento da aba/app,
+           e ainda devolve uma resposta de verdade, entao lead_captured so acende
+           quando o worker confirmar (r.ok), sem precisar de um plano B separado. */
         try {
           fetch(LEAD_ENDPOINT, {
             method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-            body: raw
+            body: raw, keepalive: true
           }).then(function (r) {
             if (r && r.ok) { track('lead_captured'); }
-            else if (!beacon()) { track('lead_failed'); }
-          }).catch(function () { if (!beacon()) { track('lead_failed'); } });
-        } catch (x) { if (!beacon()) { track('lead_failed'); } }
+            else { track('lead_failed'); }
+          }).catch(function () { track('lead_failed'); });
+        } catch (x) { track('lead_failed'); }
 
         /* nunca prende a pessoa: mostra o resultado mesmo se o worker cair.
            se cair, o evento lead_failed acende o alerta no Umami. */
@@ -938,9 +933,11 @@
         h += '<a href="' + r.cta[i].url + '" target="_blank" rel="noopener" class="lead-btn ' + r.cta[i].cls +
              '" data-umami-event="' + r.cta[i].ev + '">' + r.cta[i].label + '</a>';
       }
+      /* so Cal.com aqui (2026-08-16): o WhatsApp direto mora na tela de
+         captura, essa tela fica so com o agendamento com o resultado
+         ja preenchido nas notas. */
       var notes = 'Caminho: ' + r.tag.replace('SEU CAMINHO: ', '') + ' | ' + quizSummary();
       h += '<p class="btn-sep">— ou fala comigo direto —</p>' +
-           '<a href="' + WA + encodeURIComponent(r.wa) + '" target="_blank" rel="noopener" class="lead-btn lead-btn-wa" data-umami-event="quiz_whatsapp">› Chamar no WhatsApp</a>' +
            '<a href="' + calLink(notes, leadNome) + '" target="_blank" rel="noopener" class="lead-btn lead-btn-alt" data-umami-event="quiz_call">› Marcar 30 min comigo</a>' +
            '<button type="button" class="lead-btn lead-btn-ghost" id="leadRedo">não é bem isso? refazer</button>';
       body.innerHTML = h;
@@ -956,10 +953,10 @@
       var r = key ? RESULTS[key] : null;
       var escapeHatch = '';
       if (r) {
-        var notes = 'Caminho: ' + r.tag.replace('SEU CAMINHO: ', '') + ' | ' + quizSummary() + ' (não quis deixar contato pelo formulário)';
+        /* so WhatsApp aqui (2026-08-16): cada tela com uma opcao so. O
+           agendamento com o resultado prefilled mora na tela de resultado. */
         escapeHatch = '<p class="btn-sep">— ou fala comigo direto —</p>' +
-          '<a href="' + WA + encodeURIComponent(r.wa) + '" target="_blank" rel="noopener" class="lead-btn lead-btn-wa" data-umami-event="capture_whatsapp">› Chamar no WhatsApp</a>' +
-          '<a href="' + calLink(notes, '') + '" target="_blank" rel="noopener" class="lead-btn lead-btn-alt" data-umami-event="capture_call">› Marcar 30 min comigo</a>';
+          '<a href="' + WA + encodeURIComponent(r.wa) + '" target="_blank" rel="noopener" class="lead-btn lead-btn-wa" data-umami-event="capture_whatsapp">› Chamar no WhatsApp</a>';
       }
       body.innerHTML = prog(3) + formHtml(
         '› pronto, já sei o teu caminho',
