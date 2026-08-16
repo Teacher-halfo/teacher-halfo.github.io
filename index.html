@@ -889,79 +889,66 @@
         };
 
         btn.disabled = true;
-        var raw = JSON.stringify(payload);
 
-        /* text/plain DE PROPOSITO (2026-08-14). Com application/json o navegador
-           obriga um preflight OPTIONS antes do POST, e e esse preflight que morre
-           dentro do navegador embutido do Instagram, que e onde cai 100% do
-           trafego de anuncio. text/plain e "simple request": vai direto.
-           O worker faz request.json() e nao olha o Content-Type. */
+        /* ENVIO POR FORM, NAO POR FETCH (2026-08-16, 3a rodada do dia).
+           Historico: primeiro texto/plain+sendBeacon (evitava preflight, mas
+           sendBeacon so confirma que ENFILEIROU, nunca se o worker recebeu).
+           Depois fetch+keepalive (aguenta a aba fechando, mas nem todo
+           navegador embutido suporta keepalive direito). Depois fetch+
+           keepalive com sendBeacon de reforco no pagehide. NENHUMA dessas
+           explicava o caso real: Heitor testou com a noiva, ela preencheu,
+           apertou enviar, FICOU na tela, e mesmo assim nada chegou. Isso nao
+           e problema de aba fechando, e o proprio fetch/keepalive/sendBeacon
+           que o navegador do Instagram pode simplesmente nao entregar.
 
-        /* keepalive:true (2026-08-16). O fetch normal MORRE se a aba fechar no
-           meio do envio, keepalive deixa ESSE MESMO pedido sobreviver ao
-           fechamento da aba/app e ainda devolver uma resposta de verdade. */
-        /* checa o campo "saved" do corpo, nao so o status HTTP (2026-08-16).
-           A versao nova do worker.js (que trata falha ao salvar no GitHub)
-           sempre responde 200 e usa { ok:true, saved:false } pra sinalizar que
-           NAO conseguiu salvar. Se so olhasse r.ok, esse caso ia acender
-           lead_captured mesmo com o lead perdido. Se o corpo nao tiver o campo
-           "saved" (worker antigo, sem essa checagem), assume sucesso pelo r.ok
-           normal, pra nao quebrar nada antes do worker novo ser publicado. */
-        /* rede de seguranca do sendBeacon voltou (2026-08-16, 2a rodada).
-           keepalive:true nao e suportado por todo navegador embutido (o do
-           Instagram inclusive, dependendo da versao do app), e quando NAO e
-           suportado o fetch simplesmente morre junto com a aba, sem cair no
-           .then nem no .catch. Foi por isso que tirar o sendBeacon might ter
-           piorado a perda de lead de gente de fora, mesmo o teste do Heitor e
-           da noiva (navegador normal, com keepalive de verdade) funcionando.
-           Agora: fetch(keepalive) continua sendo o caminho principal, e so
-           dispara lead_captured quando o worker CONFIRMA. Mas se a pessoa sair
-           da pagina (pagehide/fica escondida) antes do fetch responder, dispara
-           um sendBeacon de reforco, so pra garantir que o dado chegue no
-           worker (que manda o Discord de qualquer jeito, sucesso ou falha).
-           Esse reforco NUNCA marca lead_captured, marca lead_via_beacon, "foi
-           enviado mas nao da pra confirmar", pra nao repetir o erro de antes
-           de mostrar sucesso sem ter certeza. */
-        var leadSettled = false;
-        function leadSafetyNet() {
-          if (leadSettled) return;
-          leadSettled = true;
-          document.removeEventListener('pagehide', leadSafetyNet);
-          document.removeEventListener('visibilitychange', leadVisHandler);
-          try {
-            var blob = new Blob([raw], { type: 'text/plain;charset=UTF-8' });
-            track(navigator.sendBeacon(LEAD_ENDPOINT, blob) ? 'lead_via_beacon' : 'lead_failed');
-          } catch (e) { track('lead_failed'); }
-        }
-        function leadVisHandler() { if (document.visibilityState === 'hidden') leadSafetyNet(); }
-        document.addEventListener('pagehide', leadSafetyNet, { once: true });
-        document.addEventListener('visibilitychange', leadVisHandler);
-
-        function leadSettle(fn) {
-          if (leadSettled) return;
-          leadSettled = true;
-          document.removeEventListener('pagehide', leadSafetyNet);
-          document.removeEventListener('visibilitychange', leadVisHandler);
-          fn();
-        }
-
+           Entao trocamos o mecanismo inteiro: um <form> comum, mandado pra um
+           <iframe> escondido. Isso e a coisa mais basica que existe na web,
+           funciona em qualquer navegador (embutido ou nao) porque e assim que
+           formularios funcionavam antes de fetch/XHR existirem, e nao passa
+           por CORS (CORS so vale pra fetch/XHR lendo a resposta, nao pra
+           navegacao de formulario). A troca: como a resposta cai numa origem
+           diferente (o worker), o JS aqui NAO CONSEGUE mais ler se deu certo.
+           Entao paramos de tentar adivinhar lead_captured vs lead_failed no
+           cliente, so registramos lead_sent (enviado, sem confirmacao). Quem
+           confirma de verdade agora e so o Discord, que o worker dispara
+           sempre, sucesso ou falha, com o motivo quando falha (worker.js
+           precisa aceitar form-urlencoded alem de JSON, ver mudanca junto). */
         try {
-          fetch(LEAD_ENDPOINT, {
-            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-            body: raw, keepalive: true
-          }).then(function (r) {
-            leadSettle(function () {
-              if (!r || !r.ok) { track('lead_failed'); return; }
-              r.json().then(function (data) {
-                var saved = data && typeof data.saved === 'boolean' ? data.saved : true;
-                track(saved ? 'lead_captured' : 'lead_failed');
-              }).catch(function () { track('lead_failed'); });
-            });
-          }).catch(function () { leadSettle(function () { track('lead_failed'); }); });
-        } catch (x) { leadSettle(function () { track('lead_failed'); }); }
+          var ifr = document.getElementById('leadDeliveryFrame');
+          if (!ifr) {
+            ifr = document.createElement('iframe');
+            ifr.name = 'leadDeliveryFrame';
+            ifr.id = 'leadDeliveryFrame';
+            ifr.style.display = 'none';
+            ifr.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(ifr);
+          }
+          var f = document.createElement('form');
+          f.method = 'POST';
+          f.action = LEAD_ENDPOINT;
+          f.target = 'leadDeliveryFrame';
+          f.style.display = 'none';
+          function addHidden(name, value) {
+            var inp = document.createElement('input');
+            inp.type = 'hidden'; inp.name = name; inp.value = value == null ? '' : value;
+            f.appendChild(inp);
+          }
+          addHidden('nome', payload.nome);
+          addHidden('email', payload.email);
+          addHidden('whatsapp', payload.whatsapp);
+          addHidden('consent', 'true');
+          addHidden('source', payload.source);
+          addHidden('quiz', payload.quiz ? JSON.stringify(payload.quiz) : '');
+          addHidden('page', payload.page);
+          addHidden('timestamp', payload.timestamp);
+          document.body.appendChild(f);
+          f.submit();
+          setTimeout(function () { f.remove(); }, 2000);
+          track('lead_sent');
+        } catch (x) { track('lead_failed'); }
 
-        /* nunca prende a pessoa: mostra o resultado mesmo se o worker cair.
-           se cair, o evento lead_failed acende o alerta no Umami. */
+        /* nunca prende a pessoa: mostra o resultado mesmo antes do envio confirmar.
+           quem confirma se salvou de verdade agora e o Discord (worker.js), nao o Umami. */
         onDone(rota);
       });
     }
