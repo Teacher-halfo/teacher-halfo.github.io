@@ -32,7 +32,14 @@
     window.hofMeta = function (n) {
       if (!window.fbq) { return; }
       try {
-        if (n === 'lead_captured') { fbq('track', 'Lead'); }
+        /* 2026-08-20: era 'lead_captured', que MORREU na reescrita de 16/08
+           (navegacao de pagina inteira). O evento nao existe mais na pagina,
+           entao o pixel ficou sem NENHUM Lead desde entao, e sem Lead nao da
+           pra otimizar a campanha por lead. Agora escuta 'lead_result_view',
+           que so dispara quando o worker devolve o redirect JA TENDO salvo.
+           Comparacao exata de proposito: a falha dispara
+           'lead_result_view_unconfirmed' e NAO pode contar como Lead. */
+        if (n === 'lead_result_view') { fbq('track', 'Lead'); }
         else if (n === 'quiz_completed') { fbq('trackCustom', 'QuizCompleted'); }
         else if (n === 'lac_checkout_anual' || n === 'lac_checkout_mensal') { fbq('track', 'InitiateCheckout'); }
         else if (n === 'discord_join') { fbq('trackCustom', 'DiscordJoin'); }
