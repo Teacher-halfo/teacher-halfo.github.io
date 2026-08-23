@@ -875,6 +875,26 @@
         '</form>';
     }
 
+    /* DDDs que existem de verdade no Brasil. Os buracos sao de proposito:
+       20, 23, 25, 26, 29, 30, 36, 39, 40, 50, 52, 56 a 60, 70, 72, 76, 78,
+       80 e 90 NAO existem. E por buraco assim que numero inventado passa. */
+    var DDD_BR = [11,12,13,14,15,16,17,18,19,21,22,24,27,28,31,32,33,34,35,37,
+                  38,41,42,43,44,45,46,47,48,49,51,53,54,55,61,62,63,64,65,66,
+                  67,68,69,71,73,74,75,77,79,81,82,83,84,85,86,87,88,89,91,92,
+                  93,94,95,96,97,98,99];
+
+    /* Devolve os 11 digitos nacionais limpos, ou null se nao for celular BR.
+       Celular no Brasil = DDD (2) + 9 + 8 digitos. Sempre. */
+    function zapBR(raw) {
+      var d = String(raw || '').replace(/\D/g, '');
+      if (d.slice(0, 2) === '55' && d.length > 11) { d = d.slice(2); }   /* tira o +55 se a pessoa digitou */
+      if (d.length !== 11) { return null; }                              /* 10 digitos = fixo ou faltando o 9 */
+      if (DDD_BR.indexOf(parseInt(d.slice(0, 2), 10)) === -1) { return null; }
+      if (d.charAt(2) !== '9') { return null; }                          /* celular sempre comeca com 9 */
+      if (/^(\d)\1+$/.test(d.slice(2))) { return null; }                 /* 11999999999 e amigos */
+      return d;
+    }
+
     function wireForm(onDone) {
       document.getElementById('leadForm').addEventListener('submit', function (ev) {
         ev.preventDefault();
@@ -887,7 +907,15 @@
 
         function bad(msg, f) { err.textContent = msg; err.hidden = false; if (f) { f.classList.add('is-invalid'); f.focus(); } }
         if (!n.value.trim()) { return bad('Me diz seu nome, por favor.', n); }
-        if (w.value.replace(/\D/g, '').length < 10) { return bad('Coloca seu WhatsApp com DDD (só os números já valem).', w); }
+
+        /* VALIDACAO DE WHATSAPP BR (2026-08-22). Antes era so "tem 10 digitos
+           ou mais", e foi por isso que 6799375538 passou: 10 digitos, DDD
+           valido, mas faltando o 9 do celular. Numero fake nao e so um lead
+           que nao da pra contatar. Desde 20/08 o pixel dispara Lead nessa
+           tela, entao lixo aqui ENSINA A META a procurar gente que preenche
+           lixo. Por isso a validacao virou de verdade. */
+        var zap = zapBR(w.value);
+        if (!zap) { return bad('Coloca um WhatsApp brasileiro de verdade, com DDD e o 9 na frente. Ex: (19) 99999-9999', w); }
 
         leadNome = n.value.trim();   /* guarda pra pre-preencher o Cal.com no resultado */
 
@@ -896,7 +924,9 @@
 
         var rota = (ACTIVE === 'quiz') ? route(score, goalJob) : null;
         var payload = {
-          nome: n.value.trim(), email: '', whatsapp: w.value.trim(), consent: true,
+          /* manda o numero JA NORMALIZADO (11 digitos nacionais), nao o que a
+             pessoa digitou. O worker poe o 55 na frente pro link do wa.me. */
+          nome: n.value.trim(), email: '', whatsapp: zap, consent: true,
           source: (ACTIVE === 'quiz') ? 'popup_quiz' : 'popup_oferta',
           quiz: (ACTIVE === 'quiz') ? { respostas: answers, pontos: score, rota: rota, meta_emprego: goalJob } : null,
           resumo: (ACTIVE === 'quiz') ? quizSummary() : '',
