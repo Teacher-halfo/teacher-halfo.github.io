@@ -70,8 +70,12 @@
             display: block; color: var(--mist); cursor: pointer;
         }
 
-        /* Problema, depoimentos e planos: fila horizontal que PREENCHE a largura quando há
-           poucos cards, e vira carrossel quando não cabem mais — barra de rolagem ESCONDIDA */
+        /* ==========================================================
+           CARROSSEIS HORIZONTAIS — depoimentos e planos (046b)
+           Uma regra so pros dois. Antes cada grid tinha a sua, e os
+           depoimentos ficaram pra tras: 65% da tela no celular, 43%
+           entre 601 e 959px, cortados no meio da tela igual os planos.
+           ========================================================== */
         .error-grid,
         .testimonial-grid,
         .biome-grid {
@@ -82,22 +86,60 @@
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;        /* Firefox */
             -ms-overflow-style: none;     /* IE / Edge antigo */
+            padding: 8px 16px 26px;
         }
         .error-grid::-webkit-scrollbar,
         .testimonial-grid::-webkit-scrollbar,
         .biome-grid::-webkit-scrollbar { display: none; }   /* Chrome / Safari / Opera */
-        .error-grid > *       { flex: 1 0 220px; scroll-snap-align: start; }
-        .testimonial-grid > * { flex: 1 0 320px; scroll-snap-align: start; }
-        .biome-grid > *       { flex: 1 0 290px; scroll-snap-align: start; }
 
-        /* os cards de plano têm sombra grande + hover; um respiro pra não cortar a sombra */
-        .biome-grid { padding: 8px 16px 26px; }
+        .error-grid > *,
+        .testimonial-grid > *,
+        .biome-grid > * { scroll-snap-align: start; }
 
-        /* celular: cada card ocupa ~85% da largura, deixando o próximo "espiando" */
-        @media (max-width: 600px) {
+        /* So os planos: .biome-banner e position:absolute com top:-16px, e
+           overflow-x:auto corta nos DOIS eixos na borda do padding. Sem esta
+           folga a tarja "MAIS ESCOLHIDO" perde os 8px de cima. Nao reduzir. */
+        .biome-grid { padding-top: 26px; padding-bottom: 30px; }
+
+        /* ---------- ate 959px: UM card por vez, na largura da tela ----------
+           Dois erros moravam aqui. (1) A regra de celular parava em 600px, entao
+           entre 601 e 959px o card voltava pro flex-basis fixo e era fatiado no
+           meio da tela. (2) A porcentagem era da largura do CONTAINER, nao da
+           tela: .section 24px + .container 24px comiam 48px de cada lado, e um
+           card de "92%" media 230px num aparelho de 390px — 59% da tela. Por
+           isso os carrosseis saem do container com margem negativa.
+
+           O corte pros tres lado a lado e 1100px, nao 960px: com as bullets
+           inteiras (sem gavetas) o card a 960px fica com 260px de largura e
+           1040px de altura, e o botao cai FORA da tela. A 1100px o card tem
+           307px e o botao termina a 818px — 26px de folga. Medido. */
+        @media (max-width: 1099px) {
             .error-grid > *,
             .testimonial-grid > *,
-            .biome-grid > * { flex: 0 0 85%; }
+            .biome-grid > * { flex: 0 0 96%; }
+        }
+
+        /* A margem negativa TEM que bater EXATAMENTE com .section + .container,
+           senao a pagina ganha rolagem lateral. No style.css:
+             .section   = 24px  ... e 18px abaixo de 600px (media query la embaixo)
+             .container = 24px  sempre
+           Se um dia mudar o padding de .section ou .container, mude aqui junto. */
+        @media (max-width: 600px) {
+            .error-grid,
+            .testimonial-grid,
+            .biome-grid { margin-left: -42px; margin-right: -42px; }   /* 18 + 24 */
+        }
+        @media (min-width: 601px) and (max-width: 1099px) {
+            .error-grid,
+            .testimonial-grid,
+            .biome-grid { margin-left: -48px; margin-right: -48px; }   /* 24 + 24 */
+        }
+
+        /* ---------- 960px+: tudo lado a lado, sem carrossel ---------- */
+        @media (min-width: 1100px) {
+            .error-grid > *,
+            .testimonial-grid > *,
+            .biome-grid > * { flex: 1 1 0; }
         }
 
         /* setas do carrossel — só aparecem quando há cards demais pra caber (controlado por JS) */
@@ -141,7 +183,6 @@
           ],
           "sameAs": [
             "https://www.instagram.com/teacher_halfo/",
-            "https://www.tiktok.com/@teacher_halfo",
             "https://www.youtube.com/channel/UCuHEJK9VrkzMF4FsR_xzFWA"
           ]
         },
@@ -173,7 +214,6 @@
           ],
           "sameAs": [
             "https://www.instagram.com/teacher_halfo/",
-            "https://www.tiktok.com/@teacher_halfo",
             "https://www.youtube.com/channel/UCuHEJK9VrkzMF4FsR_xzFWA",
             "https://discord.gg/bJD7fcKxhy"
           ],
@@ -199,6 +239,16 @@
                 "url": "https://buy.stripe.com/9B600k8TI6tA4fJ37EbfO0c",
                 "category": "Comunidade online",
                 "eligibleDuration": { "@type": "QuantitativeValue", "value": 1, "unitCode": "MON" }
+              },
+              {
+                "@type": "Offer",
+                "name": "LAC anual — com Personal Curriculum",
+                "description": "Tudo da LAC mensal mais o Personal Curriculum: um roteiro de temas e tópicos criado junto com o aluno na primeira semana, que guia o ano inteiro. Inclui prioridade total nas vagas de Conversation Classes. Assinatura anual.",
+                "price": "949.90",
+                "priceCurrency": "BRL",
+                "url": "https://buy.stripe.com/4gM00k4Ds5pw4fJeQmbfO0b",
+                "category": "Comunidade online",
+                "eligibleDuration": { "@type": "QuantitativeValue", "value": 1, "unitCode": "ANN" }
               }
             ]
           }
@@ -239,17 +289,14 @@
     <div class="hero-content">
         <div class="terminal-window hero-terminal">
             <div class="terminal-body">
-                <p class="terminal-line"><span class="prompt">@</span><span class="cmd" id="boot-line">Half-o-Fluent</span></p>
                 <h1 class="hero-headline pixel-font">
-                    Inglês para se<br>
-                    conectar <span class="accent">de verdade</span>.
+                    Inglês para se conectar <span class="accent">de verdade</span>.
                 </h1>
 
                 <!-- VIDEO NO HERO (2026-08-14). Antes morava no #metodo e so 11%
                      chegavam nele. Toca sozinho, mudo, dentro da mesma caixa. -->
                 <div class="terminal-window hero-video-wrap">
                     <video class="video-slot" id="heroVideo" controls playsinline autoplay muted preload="auto"
-                           poster="assets/oferta-poster.png"
                            style="object-fit:cover;"
                            onplay="window.umami && umami.track('hero_video_play')">
                         <source src="assets/a-diferenca.mp4" type="video/mp4">
@@ -307,7 +354,7 @@
             <span class="section-label pixel-font">› Escolha como você quer começar:</span>
         </div>
 
-        <h2 class="section-title pixel-font">Dois jeitos de participar.<br><span class="dim-text">Comece onde você consegue HOJE.</span></h2>
+        <h2 class="section-title pixel-font">Três jeitos de participar.<br><span class="dim-text">Comece onde você consegue HOJE.</span></h2>
 
         <div class="biome-grid" id="entrar">
 
@@ -448,10 +495,6 @@
                 <img src="assets/icon-instagram.png" alt="Instagram">
                 <span class="stage-label pixel-font">instagram</span>
             </a>
-            <a href="https://www.tiktok.com/@teacher_halfo" class="stage-card" target="_blank" rel="noopener">
-                <img src="assets/icon-tiktok.png" alt="TikTok">
-                <span class="stage-label pixel-font">tiktok</span>
-            </a>
             <a href="https://discord.gg/bJD7fcKxhy" class="stage-card" target="_blank" rel="noopener">
                 <img src="assets/icon-discord.png" alt="Discord">
                 <span class="stage-label pixel-font">discord</span>
@@ -498,27 +541,6 @@
         <p class="footer-line dim-text">conversa &gt; gramática · sempre.</p>
     </div>
 </footer>
-
-<!-- ==================== BOOT-SCREEN TYPING ==================== -->
-<script>
-(function(){
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduced) return;
-  const el = document.getElementById('boot-line');
-  if (!el) return;
-  const full = el.textContent;
-  el.textContent = '';
-  let i = 0;
-  function tick(){
-    if (i <= full.length){
-      el.textContent = full.slice(0, i);
-      i++;
-      setTimeout(tick, 55);
-    }
-  }
-  setTimeout(tick, 350);
-})();
-</script>
 
 <!-- ==================== WHATSAPP FLOATING BUTTON ==================== -->
 <a href="https://wa.me/5519991513041?text=Oi%20Heitor!%20Vi%20o%20site%20e%20queria%20tirar%20uma%20d%C3%BAvida." class="whatsapp-fab" target="_blank" rel="noopener" aria-label="Conversar com o Heitor no WhatsApp">
@@ -762,12 +784,16 @@
       }
     };
 
+    /* 046 (2026-08-27): oferta.html foi APAGADO do repo. Este modo continua
+       dormente (ACTIVE = 'quiz'). Se um dia reativar, o destino tem que ser
+       recriado ANTES de trocar o ACTIVE, senão a pessoa cai num 404 depois
+       de entregar o contato. */
     var OFERTA = {
       eyebrow: '› oferta por tempo limitado',
       title:   'Oferta especial da LAC.',
       desc:    'Deixa teu contato que eu te levo pra oferta.',
       button:  '› Quero ver a oferta',
-      success: 'oferta.html'
+      success: 'index.html#planos'
     };
 
     /* PONTUAÇÃO 0-6. Quanto MAIOR, melhor o inglês e mais forte a meta.

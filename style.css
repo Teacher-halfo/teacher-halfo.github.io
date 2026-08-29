@@ -68,7 +68,11 @@ body {
     line-height: 1.6;
     color: var(--ink);
     background-color: var(--parchment);
-    border: 12px solid var(--ink);
+    /* 046b (2026-08-27): saiu a moldura de 12px em volta da pagina inteira.
+       Era ela a "borda/padding do lado" que o Heitor via toda vez que uma
+       secao trocava de cor: TODAS as secoes ficavam 24px mais estreitas que a
+       tela e comecavam em left:12. Pra trazer de volta:
+           border: 12px solid var(--ink); */
     min-height: 100vh;
     overflow-x: hidden;
 }
@@ -280,20 +284,7 @@ a { color: inherit; }
     padding: 14px;
 }
 
-.terminal-line {
-    margin: 0 0 6px 0;
-    font-family: var(--term-font);
-    font-size: 1.1rem;
-}
-
-.terminal-line.dim {
-    color: var(--phosphor-d);
-    opacity: 0.75;
-    margin-bottom: 4px;
-}
-
 .prompt { color: var(--sun); margin-right: 6px; }
-.cmd { color: var(--phosphor); }
 
 /* ==========================================================
    HERO TERMINAL — bigger, with headline inside
