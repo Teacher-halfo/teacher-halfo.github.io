@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Aprender inglês e ter fluência não são a mesma coisa. Deixa o Heitor te mostrar a diferença em 2 minutos.">
     <meta property="og:title" content="Half-o-Fluent | Aprender ≠ Fluência">
-    <meta property="og:description" content="Deixa eu te mostrar a diferença — em 2 minutos, comigo.">
+    <meta property="og:description" content="Deixa eu te mostrar a diferença, em 2 minutos, comigo.">
     <meta property="og:image" content="assets/logo.png">
     <meta name="robots" content="noindex, follow">
     <title>Half-o-Fluent | Aprender ≠ Fluência</title>
@@ -70,7 +70,7 @@
             box-shadow: 4px 4px 0 var(--ink); padding: 12px 16px; font-size: 0.85rem;
             letter-spacing: 0.04em; line-height: 1.4;
         }
-        .lock-veil .lock-sub { font-family: var(--pixel-font); color: var(--moss); font-size: 0.8rem; }
+        .lock-veil .lock-sub { font-family: var(--pixel-font); font-weight: normal; color: var(--gray-mid); font-size: 0.78rem; }
 
         /* ===== AUTOPLAY MUDO: botão "ativar som" dentro da barra do terminal ===== */
         .bar-unmute {
@@ -106,7 +106,11 @@
             color: var(--mist); font-size: 0.72rem; text-decoration: underline; padding: 0;
         }
 
-        /* ===== CARROSSEL DE PLANOS — cards deslizáveis (swipe + setas), igual ao site ===== */
+        /* ===== CARROSSEL DOS PLANOS =====================================
+           Portado do index.html em 2026-09-24, com os comentarios de la.
+           Esta pagina estava com a versao ANTIGA da regra, e era por isso que
+           os cards saiam diferentes dos do site. Se mudar la, muda aqui.
+           ================================================================= */
         .biome-grid {
             display: flex;
             flex-wrap: nowrap;
@@ -118,9 +122,33 @@
             padding: 8px 16px 26px;
         }
         .biome-grid::-webkit-scrollbar { display: none; }   /* Chrome / Safari / Opera */
-        .biome-grid > * { flex: 1 0 290px; scroll-snap-align: start; }
+        .biome-grid > * { scroll-snap-align: start; }
+
+        /* .biome-banner e position:absolute com top:-16px, e overflow-x:auto corta
+           nos DOIS eixos na borda do padding. Sem esta folga a tarja MAIS ESCOLHIDO
+           perde os 8px de cima. Nao reduzir. */
+        .biome-grid { padding-top: 26px; padding-bottom: 30px; }
+
+        /* ate 1099px: UM card por vez, na largura da tela. O corte NAO e 600px:
+           entre 601 e 959px o card voltava pro flex-basis fixo e era fatiado. */
+        @media (max-width: 1099px) {
+            .biome-grid > * { flex: 0 0 96%; }
+        }
+
+        /* A margem negativa TEM que bater EXATAMENTE com .section + .container,
+           senao a pagina ganha rolagem lateral.
+             .section   = 24px  ... e 18px abaixo de 600px
+             .container = 24px  sempre */
         @media (max-width: 600px) {
-            .biome-grid > * { flex: 0 0 85%; }
+            .biome-grid { margin-left: -42px; margin-right: -42px; }   /* 18 + 24 */
+        }
+        @media (min-width: 601px) and (max-width: 1099px) {
+            .biome-grid { margin-left: -48px; margin-right: -48px; }   /* 24 + 24 */
+        }
+
+        /* 1100px+: lado a lado, sem carrossel */
+        @media (min-width: 1100px) {
+            .biome-grid > * { flex: 1 1 0; }
         }
         .carousel-nav { display: none; gap: 10px; justify-content: flex-end; margin-top: 14px; }
         .carousel-btn {
@@ -133,6 +161,162 @@
         }
         .carousel-btn:disabled { opacity: 0.3; cursor: default; box-shadow: none; }
         .carousel-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+        .section-dark .carousel-nav { justify-content: center; }
+
+        /* ==========================================================================
+           BLOCOS DA OFERTA
+           Revisão 2026-09-24. Cada seção alterna parchment / dark, igual ao
+           index.html. `section-leaf` saiu: não existe na página principal, e era
+           o que fazia esta página parecer outro site.
+
+           A ordem das faixas, de cima pra baixo:
+             hero DARK · diagnóstico PARCHMENT · exemplo DARK · mecanismo PARCHMENT
+             · ferramentas DARK · o que não é PARCHMENT · demonstração DARK
+             · sua semana PARCHMENT · e se não mudar DARK · planos PARCHMENT
+           Mexeu numa seção? Confere a alternância antes de salvar.
+           ========================================================================== */
+
+        /* REGRA DA CASA: a fonte pixel tem UM peso so. Pedir negrito faz o
+           navegador engrossar a mao e o texto vira borrao. style.css ja trava
+           isso em .pixel-font; todo seletor daqui que usa a fonte repete. */
+        .lp-kicker {
+            font-family: var(--pixel-font); font-weight: normal;
+            font-size: 0.8rem; letter-spacing: 0.06em;
+            color: var(--gray-mid); margin: 0 0 12px;
+        }
+        .section-dark .lp-kicker { color: var(--brand-yellow); }
+        .lp-title { font-size: 1.6rem; line-height: 1.3; margin: 0 0 18px; }
+        .lp-body { font-size: 1.04rem; line-height: 1.65; margin: 0 0 16px; }
+        /* o remate de cada secao: destaque por COR e tamanho, nao por negrito */
+        .lp-punch { font-size: 1.2rem; line-height: 1.5; font-weight: normal; margin: 0; color: var(--sun); }
+        .section-dark .lp-punch { color: var(--brand-yellow); }
+        .lp-body strong { font-weight: normal; color: var(--sun); }
+        .section-dark .lp-body strong { color: var(--brand-yellow); }
+
+        .cta-down {
+            display: block; width: fit-content; margin: 34px auto 0;
+            font-family: var(--pixel-font); font-weight: normal;
+            font-size: 0.86rem; letter-spacing: 0.04em;
+            color: var(--ink); text-decoration: none;
+            border-bottom: 2px dashed var(--sun); padding-bottom: 5px;
+        }
+        .cta-down:hover { color: var(--sun); }
+        .section-dark .cta-down { color: var(--brand-yellow); border-bottom-color: var(--brand-yellow); }
+
+        /* o momento do exemplo: as duas frases têm a MESMA fonte e o MESMO tamanho,
+           só muda a cor. É esse contraste que faz o ponto sozinho. */
+        .flip {
+            max-width: 460px; margin: 26px auto 0;
+            background: var(--ink-soft); border: 2px solid var(--sun);
+            box-shadow: 6px 6px 0 rgba(0,0,0,0.45);
+            padding: 30px 20px; text-align: center;
+        }
+        .flip-line {
+            font-family: var(--term-font); font-size: 1.35rem; line-height: 1.35;
+            margin: 0; letter-spacing: 0.02em;
+        }
+        .flip-wrong { color: var(--gray-light); }
+        .flip-right { color: var(--brand-yellow); }
+        .flip-caret { animation: flipBlink 1.1s step-end infinite; }
+        @keyframes flipBlink { 50% { opacity: 0; } }
+        .flip-gap {
+            font-family: var(--pixel-font); font-weight: normal;
+            font-size: 0.74rem; color: var(--gray-mid);
+            margin: 14px 0; letter-spacing: 0.06em;
+        }
+
+        /* as quatro ferramentas */
+        .doors { display: grid; gap: 16px; margin-top: 8px; }
+        .door { border-left: 4px solid var(--sun); padding: 18px 18px 16px; background: rgba(26,23,20,0.04); }
+        .section-dark .door { background: rgba(245,239,224,0.05); }
+        .door-num { font-family: var(--pixel-font); font-weight: normal; font-size: 0.8rem; color: var(--sun); letter-spacing: 0.06em; }
+        .section-dark .door-num { color: var(--brand-yellow); }
+        .door h3 {
+            font-family: var(--pixel-font); font-weight: normal;
+            font-size: 1.15rem; margin: 8px 0 10px; line-height: 1.35;
+            letter-spacing: 0.04em; color: var(--sun);
+        }
+        .section-dark .door h3 { color: var(--brand-yellow); }
+        .door p { margin: 0 0 12px; font-size: 0.99rem; line-height: 1.6; }
+        .door p:last-child { margin-bottom: 0; }
+        .door-annual { border-left-color: var(--solarpunk); background: rgba(124,179,66,0.12); }
+        .section-dark .door-annual { background: rgba(124,179,66,0.14); }
+        .door-annual .door-num, .section-dark .door-annual .door-num { color: var(--solarpunk); }
+
+        /* carrossel de prints: reusa a mecânica do .biome-grid.
+           TODA imagem é 9:16 (1080x1920 na origem). O aspect-ratio abaixo é a trava:
+           se um print vier com outra proporção, ele é cortado, não quebra a fileira. */
+        /* O carrossel de prints tem mecanica propria, NAO herda a dos planos:
+           os cards de plano ocupam 96% da tela no celular, e um print nessa
+           largura empurraria os outros pra fora do campo de visao. */
+        .shot-grid {
+            display: flex; flex-wrap: nowrap; overflow-x: auto;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; -ms-overflow-style: none;
+            align-items: flex-start; gap: 16px; padding: 8px 4px 26px;
+        }
+        .shot-grid::-webkit-scrollbar { display: none; }
+        .shot-grid > * { flex: 0 0 300px; scroll-snap-align: start; }
+        @media (max-width: 600px) { .shot-grid > * { flex: 0 0 76%; } }
+        .shot {
+            background: var(--ink-soft); border: 2px solid var(--brand-yellow);
+            box-shadow: 6px 6px 0 rgba(0,0,0,0.45);
+        }
+        /* SEM proporcao forcada. A imagem entra na altura que ela tem.
+           Quem garante a fileira alinhada e o ARQUIVO: todo print e 9:16
+           (1080x1920), entao a 300px de largura todos dao 533px de altura
+           sozinhos. Travar aspect-ratio aqui so serve pra cortar (cover) ou
+           deixar tarja preta (contain) quando um print vem fora do formato,
+           e os dois ficam piores do que a altura natural. Se um print sair
+           diferente, conserta o print, nao o CSS. */
+        .shot img { display: block; width: 100%; height: auto; }
+        .shot-cap {
+            font-family: var(--pixel-font); font-weight: normal;
+            font-size: 0.72rem; line-height: 1.4;
+            color: var(--parchment); padding: 11px 12px; margin: 0; letter-spacing: 0.04em;
+        }
+        .shot-hint {
+            font-family: var(--pixel-font); font-weight: normal;
+            font-size: 0.76rem; color: var(--gray-mid);
+            text-align: center; margin: 0 0 4px; letter-spacing: 0.04em;
+        }
+        .shot-reassure {
+            max-width: 640px; margin: 10px auto 0; text-align: center;
+            font-size: 1rem; line-height: 1.6; color: var(--gray-pale);
+        }
+
+        /* a semana */
+        .rhythm { list-style: none; padding: 0; margin: 0; }
+        .rhythm li { display: flex; gap: 16px; padding: 15px 0; border-bottom: 1px dashed rgba(26,23,20,0.18); }
+        .rhythm li:last-child { border-bottom: 0; }
+        .rhythm .when {
+            font-family: var(--pixel-font); font-weight: normal;
+            font-size: 0.78rem; color: var(--sun);
+            flex: 0 0 160px; letter-spacing: 0.05em; padding-top: 3px; line-height: 1.5;
+        }
+        .rhythm .what { font-size: 1rem; line-height: 1.6; }
+        @media (max-width: 620px) {
+            .rhythm li { flex-direction: column; gap: 5px; }
+            .rhythm .when { flex: none; }
+        }
+
+        /* o que não é / custo de não mudar */
+        .nots { list-style: none; padding: 0; margin: 0; }
+        .nots li { padding: 13px 0 13px 28px; position: relative; font-size: 1.02rem; line-height: 1.6; }
+        .nots li::before { content: "\00d7"; position: absolute; left: 0; top: 11px; font-family: var(--pixel-font); font-weight: normal; color: var(--sun); font-size: 1.15rem; }
+        .costs { list-style: none; padding: 0; margin: 0 0 22px; }
+        .costs li { padding: 11px 0 11px 30px; position: relative; font-size: 1.02rem; line-height: 1.6; }
+        .costs li::before { content: "\2192"; position: absolute; left: 0; top: 11px; font-family: var(--pixel-font); font-weight: normal; color: var(--brand-yellow); }
+
+        .partner-note {
+            max-width: 540px; margin: 0 auto 22px; text-align: center;
+            font-family: var(--pixel-font); font-weight: normal;
+            font-size: 0.82rem; line-height: 1.55;
+            color: var(--ink); background: var(--brand-yellow);
+            border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
+            padding: 11px 14px; display: none;
+        }
+        .partner-note.is-on { display: block; }
     </style>
 </head>
 <body>
@@ -143,15 +327,14 @@
     <span class="lp-chip">APRENDER ≠ FLUÊNCIA</span>
 </div>
 
-<!-- ==================== HERO: MESSAGE MATCH + VÍDEO NO CENTRO ==================== -->
+<!-- ==================== HERO · DARK ==================== -->
 <header class="hero lp-hero" id="top">
     <div class="hero-bg" aria-hidden="true"><div class="hero-scanlines"></div></div>
 
     <div class="container narrow" style="position:relative; z-index:1; text-align:center;">
         <span class="lp-eyebrow">› você já entendeu que fluência não é estudar.</span>
 
-        <!-- VÍDEO HERO: agora logo abaixo do eyebrow — é a primeira coisa que a pessoa vê.
-             toca sozinho (mudo); botão na barra liga o som; ao fim, banner de CTA.
+        <!-- VÍDEO HERO: toca sozinho (mudo); botão na barra liga o som; ao fim, banner de CTA.
              Vídeo em  assets/a-diferenca.mp4  — carrega sozinho, sem YouTube. -->
         <div class="terminal-window" style="max-width:330px; margin:18px auto 0;">
             <div class="terminal-bar" style="flex-wrap:wrap;">
@@ -177,15 +360,321 @@
             ESTUDAR INGLÊS <span class="accent">SEM PRÁTICA</span> É ACUMULAR CONHECIMENTO QUE VOCÊ <span class="accent">NUNCA</span> VAI USAR.
         </h1>
         <p class="hero-sub lp-hero-sub">
-            E é isso que eu vou te mostrar: Por que você ainda não ficou fluente, o motivo de você travar e o que a gente pode fazer agora para mudar a sua situação.
+            Por que você ainda não ficou fluente, o motivo de você travar e o que a gente pode fazer agora para mudar a sua situação.
         </p>
 
-        <p class="post-video-cue" id="postCue">↓ Quer saber como você começa?</p>
+        <p class="post-video-cue" id="postCue">↓ É isso que eu vou te mostrar, <span class="accent">está tudo escrito aqui embaixo.</span></p>
     </div>
 </header>
 
-<!-- ==================== OS PLANOS (iguais aos do site) ==================== -->
-<section id="planos" class="section section-parchment">
+<!-- ==================== A · O DIAGNÓSTICO · PARCHMENT ==================== -->
+<section class="section section-parchment" id="diagnostico">
+    <div class="container narrow">
+        <h2 class="section-title pixel-font lp-title">Você trava, mas não é falta de conhecimento.</h2>
+
+        <p class="lp-body">
+            Você sabe a palavra. Entendeu tudo que a pessoa falou. E mesmo assim a frase não sai na hora.
+            Parece que falta uma ponte entre o que você sabe e o que você consegue produzir.
+        </p>
+        <p class="lp-body">
+            Isso não é vergonha. E não é falta de estudo.
+        </p>
+        <p class="lp-body">
+            Mas isso te faz achar que precisa estudar mais. Mais gramática, mais vocabulário, mais um curso.
+            Só que você já estuda faz anos. Se só estudar resolvesse, você já tinha resolvido.
+        </p>
+
+        <a href="#exemplo" class="cta-down" data-umami-event="cta_down_diagnostico">› então qual é o problema? ↓</a>
+    </div>
+</section>
+
+<!-- ==================== B · O EXEMPLO · DARK ==================== -->
+<section class="section section-dark" id="exemplo">
+    <div class="container narrow">
+        <h2 class="section-title pixel-font section-title-dark lp-title">Vamos imaginar uma situação que eu tenho certeza que você já viveu.</h2>
+
+        <p class="lp-body">
+            Você sabe exatamente o que quer falar. Em português, a frase sai sozinha. Em inglês você começa...
+        </p>
+
+        <div class="flip">
+            <p class="flip-line flip-wrong">I have 24 years<span class="flip-caret">_</span></p>
+            <p class="flip-gap">um segundo de nada</p>
+            <p class="flip-line flip-right">I AM 24 years old!</p>
+        </div>
+
+        <p class="lp-body" style="margin-top:28px;">
+            Você sabe o verbo <em>to be</em>. Aprendeu ele na primeira semana de qualquer curso, viu ele em toda
+            série que você assistiu, leu ele em todo post que você abriu. Não foi falta de conhecimento.
+        </p>
+        <p class="lp-body">
+            O que aconteceu é que o português chegou primeiro. Na hora de falar, o seu cérebro pega o caminho
+            que ele já usou dez mil vezes, <em>ter</em> vinte e quatro anos, e a resposta certa chega meio segundo
+            depois, quando você já falou.
+        </p>
+        <p class="lp-punch">
+            Você não perdeu pra falta de estudo. Você perdeu pra velocidade.
+        </p>
+    </div>
+</section>
+
+<!-- ==================== C · O MECANISMO · PARCHMENT ==================== -->
+<section class="section section-parchment" id="mecanismo">
+    <div class="container narrow">
+        <p class="lp-kicker">› POR QUE ISSO ACONTECE</p>
+        <h2 class="section-title pixel-font lp-title">O problema não é que falta conhecimento. É o caminho que esse conhecimento percorre pra sair da sua cabeça.</h2>
+
+        <p class="lp-body">
+            Assistir série em inglês, ouvir música, jogar um jogo, tudo isso é consumo. Consumo é ótimo, e você
+            precisa dele todo dia. Só que ele treina o seu cérebro a entender. Não a produzir.
+        </p>
+        <p class="lp-body">
+            São dois caminhos diferentes dentro da sua cabeça. Você andou muito num deles e quase nada no outro.
+        </p>
+        <p class="lp-body">
+            E você vai pensar: mas eu já fiz curso. Eu sei, eu também aprendi assim. Mas olha o que acontece numa
+            aula comum: Teacher fala, você lê a opção que o livro te dá, você responde, e a aula acaba.
+        </p>
+        <p class="lp-body">
+            Em que momento você produziu inglês? A frase que você disse não foi criada pelo seu cérebro, alguém
+            disse ela pra você.
+        </p>
+        <p class="lp-body">
+            Por quanto tempo você realmente produziu inglês? Um minuto? Dois? O resto foi consumo.
+        </p>
+
+        <a href="#dentro" class="cta-down" data-umami-event="cta_down_mecanismo">› e o que muda aqui dentro ↓</a>
+    </div>
+</section>
+
+<!-- ==================== D · AS QUATRO FERRAMENTAS · DARK ==================== -->
+<section class="section section-dark" id="dentro">
+    <div class="container narrow">
+        <p class="lp-kicker">› ONDE ISSO ACONTECE</p>
+        <h2 class="section-title pixel-font section-title-dark lp-title">A LAC não é um curso. É uma comunidade pra você usar o inglês que já tem, pra conseguir chegar na fluência.</h2>
+
+        <p class="lp-body">
+            Quando você começa, você recebe acesso às quatro ferramentas que a gente usa toda semana.
+        </p>
+
+        <div class="doors">
+
+            <div class="door">
+                <span class="door-num">01</span>
+                <h3>Discord</h3>
+                <p>
+                    A comunidade, e o lugar onde a prática extra do LAC acontece. É onde você usa o que você já
+                    consome hoje, junto com outras pessoas que estão fazendo a mesma coisa, mas cada um da sua forma.
+                </p>
+            </div>
+
+            <div class="door">
+                <span class="door-num">02</span>
+                <h3>Classroom</h3>
+                <p>
+                    Quatro atividades toda semana: uma de leitura, uma de escuta, uma de escrita e uma de fala.
+                    Cada uma obriga o seu cérebro a processar de um jeito diferente. Toda segunda entra um tema
+                    novo através da newsletter da semana.
+                </p>
+            </div>
+
+            <div class="door">
+                <span class="door-num">03</span>
+                <h3>WhatsApp Feedback</h3>
+                <p>
+                    Eu checo tudo o que você faz na comunidade. E não é só marcar o que está errado: eu escrevo
+                    o motivo de cada mudança que eu propus. É a diferença entre saber que errou e saber por que
+                    deveria ser diferente.
+                </p>
+            </div>
+
+            <div class="door">
+                <span class="door-num">04</span>
+                <h3>Uma aula de conversação, só sua</h3>
+                <p>
+                    Trinta minutos comigo, e quem marca é você, quando quiser. Serve pra treinar exatamente o
+                    que você não conseguiu produzir naquele mês.
+                </p>
+            </div>
+
+            <div class="door door-annual">
+                <span class="door-num">+ SÓ NO ANUAL</span>
+                <h3>Personal Curriculum</h3>
+                <p>
+                    É um documento seu. Ele abre com o seu nível, a sua faixa de vocabulário e quanto de inglês
+                    você precisa por semana. Depois vem uma tarefa por página: por que ela existe, como fazer, e
+                    onde mandar o resultado. Cada tarefa parte de uma coisa que você já assiste, já lê ou já
+                    escuta, e o que você produz chega até mim no Discord ou no WhatsApp pra eu checar com você.
+                </p>
+                <p>
+                    A gente senta e monta o roteiro do seu ano inteiro, com os temas e os tópicos do seu uso
+                    específico do inglês. É o que você só consegue adquirir com o compromisso de usar o inglês,
+                    do mesmo jeito que o Português.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ==================== E · O QUE A LAC NÃO É · PARCHMENT ==================== -->
+<section class="section section-parchment" id="naoe">
+    <div class="container narrow">
+        <h2 class="section-title pixel-font lp-title">O que a LAC não é</h2>
+
+        <ul class="nots">
+            <li>Não é um curso de gramática. Não tem trilha de tempos verbais pra você decorar.</li>
+            <li>Não é aula gravada toda semana. É uma aula ao vivo por mês, e quem marca é você, quando quiser.</li>
+        </ul>
+
+        <a href="#demo" class="cta-down" data-umami-event="cta_down_naoe">› quero ver por dentro ↓</a>
+    </div>
+</section>
+
+<!-- ==================== F · DEMONSTRAÇÃO · DARK ====================
+     Onze telas. Toda imagem é 9:16, exportada em 1080x1920, e entra em assets/
+     com o nome exato que está no src. Print que falta fica comentado: descomenta
+     o bloco quando o arquivo existir, não mexe em mais nada.
+     ================================================================ -->
+<section class="section section-dark" id="demo">
+    <div class="container">
+        <div class="section-header" style="text-align:center;">
+            <span class="section-label pixel-font">› DEMONSTRAÇÃO</span>
+        </div>
+        <h2 class="section-title pixel-font section-title-dark" style="text-align:center;">Veja a LAC por dentro</h2>
+        <p class="shot-hint">← arraste para o lado para ver todas as telas →</p>
+
+        <div class="shot-grid" style="max-width:1000px; margin:0 auto;">
+
+            <figure class="shot" style="margin:0;">
+                <img src="assets/lac-01-temas.png" alt="A lista de temas de cada semana no Classroom" loading="lazy">
+                <figcaption class="shot-cap">Um tema novo toda semana</figcaption>
+            </figure>
+
+            <figure class="shot" style="margin:0;">
+                <img src="assets/lac-02-semana.png" alt="Uma semana aberta no Classroom com as quatro atividades" loading="lazy">
+                <figcaption class="shot-cap">As quatro atividades da semana</figcaption>
+            </figure>
+
+            <figure class="shot" style="margin:0;">
+                <img src="assets/lac-03-newsletter.png" alt="A newsletter de segunda, com as expressões marcadas" loading="lazy">
+                <figcaption class="shot-cap">A newsletter de segunda</figcaption>
+            </figure>
+
+            <!-- [R] leitura — assets/lac-04-task-R.png
+            <figure class="shot" style="margin:0;">
+                <img src="assets/lac-04-task-R.png" alt="A atividade de leitura da semana" loading="lazy">
+                <figcaption class="shot-cap">[R] A atividade de leitura</figcaption>
+            </figure>
+            -->
+
+            <!-- [L] escuta — assets/lac-05-task-L.png
+            <figure class="shot" style="margin:0;">
+                <img src="assets/lac-05-task-L.png" alt="A atividade de escuta da semana" loading="lazy">
+                <figcaption class="shot-cap">[L] A atividade de escuta</figcaption>
+            </figure>
+            -->
+
+            <figure class="shot" style="margin:0;">
+                <img src="assets/lac-06-task-W.png" alt="A atividade de escrita da semana" loading="lazy">
+                <figcaption class="shot-cap">[W] A atividade de escrita</figcaption>
+            </figure>
+
+            <!-- [S] fala — assets/lac-07-task-S.png
+            <figure class="shot" style="margin:0;">
+                <img src="assets/lac-07-task-S.png" alt="A atividade de fala da semana" loading="lazy">
+                <figcaption class="shot-cap">[S] A atividade de fala</figcaption>
+            </figure>
+            -->
+
+            <figure class="shot" style="margin:0;">
+                <img src="assets/lac-08-conversation.png" alt="A agenda pra marcar a aula de conversação do mês" loading="lazy">
+                <figcaption class="shot-cap">Marcando a sua aula de conversação</figcaption>
+            </figure>
+
+            <!-- correção — assets/lac-09-correcao.png
+            <figure class="shot" style="margin:0;">
+                <img src="assets/lac-09-correcao.png" alt="Uma atividade corrigida, com o motivo de cada mudança" loading="lazy">
+                <figcaption class="shot-cap">A correção, com o motivo</figcaption>
+            </figure>
+            -->
+
+            <!-- whatsapp — assets/lac-10-whatsapp.png
+            <figure class="shot" style="margin:0;">
+                <img src="assets/lac-10-whatsapp.png" alt="O feedback chegando no WhatsApp" loading="lazy">
+                <figcaption class="shot-cap">O feedback no seu WhatsApp</figcaption>
+            </figure>
+            -->
+
+            <!-- discord — assets/lac-11-discord.png
+            <figure class="shot" style="margin:0;">
+                <img src="assets/lac-11-discord.png" alt="Uma prática extra publicada no Discord" loading="lazy">
+                <figcaption class="shot-cap">A prática extra no Discord</figcaption>
+            </figure>
+            -->
+
+        </div>
+
+        <p class="shot-reassure">
+            Tudo isso abre no celular. As atividades são curtas e você pode fazer em qualquer lugar. Não tem
+            horário obrigatório, só o seu compromisso de participar toda semana.
+        </p>
+
+        <a href="#semana" class="cta-down" data-umami-event="cta_down_demo">› como é a sua semana ↓</a>
+    </div>
+</section>
+
+<!-- ==================== G · SUA SEMANA · PARCHMENT ==================== -->
+<section class="section section-parchment" id="semana">
+    <div class="container narrow">
+        <p class="lp-kicker">› NO SEU RITMO</p>
+        <h2 class="section-title pixel-font lp-title">Como é a sua semana na LAC</h2>
+
+        <ul class="rhythm">
+            <li>
+                <span class="when">SEGUNDA</span>
+                <span class="what">Eu te envio a newsletter, com as expressões marcadas. Isso te mostra o que você precisa entender pra conseguir praticar aquela semana na comunidade.</span>
+            </li>
+            <li>
+                <span class="when">DURANTE A SEMANA</span>
+                <span class="what">As quatro atividades chegam, pra você acessar no seu tempo, na ordem que você quiser. O objetivo delas é te mostrar onde o seu inglês consegue chegar, e como fazer ele chegar ainda mais longe.</span>
+            </li>
+            <li>
+                <span class="when">DEPOIS DE CADA UMA</span>
+                <span class="what">A correção, com o motivo de cada mudança feita por mim. O que você produz só está errado quando não consegue ser compreendido, o que eu faço é te ouvir e entender onde a sua comunicação para de ser entendida.</span>
+            </li>
+            <li>
+                <span class="when">UMA VEZ POR MÊS</span>
+                <span class="what">A sua aula de conversação, marcada por você, no horário que você quiser. Através dessa aula, eu te explico exatamente o que aconteceu no seu uso, e o que fazer pra desenvolver a sua habilidade linguística.</span>
+            </li>
+            <li>
+                <span class="when">QUANDO QUISER USAR O SEU DIA PRA APRENDER</span>
+                <span class="what">No Discord, você acessa a prática extra e a comunidade. Lá você usa as séries, filmes, músicas, jogos, e tudo aquilo que você já sabe que pode te ensinar, de uma forma onde isso realmente vira conhecimento adquirido.</span>
+            </li>
+        </ul>
+    </div>
+</section>
+
+<!-- ==================== H · E SE VOCÊ NÃO MUDAR NADA? · DARK ==================== -->
+<section class="section section-dark" id="semudar">
+    <div class="container narrow">
+        <h2 class="section-title pixel-font section-title-dark lp-title">E se você não mudar nada?</h2>
+
+        <ul class="costs">
+            <li>Você continua estudando, e continua travando na hora.</li>
+            <li>Continua entendendo tudo e não conseguindo responder.</li>
+            <li>Continua adiando a conversa que você quer ter, pro dia em que você "estiver pronto".</li>
+        </ul>
+
+        <p class="lp-body">O tempo, sozinho, não te faz falar. Mais um curso também não.</p>
+        <p class="lp-punch">Você não precisa de mais estudo. Precisa de um lugar pra usar o que você já sabe.</p>
+
+        <a href="#planos" class="cta-down" data-umami-event="cta_down_semudar">› é isso que tem aqui ↓</a>
+    </div>
+</section>
+
+<!-- ==================== OS PLANOS · PARCHMENT ==================== -->
+<section id="planos" class="section section-parchment gated">
     <div class="container vsl-content">
         <div class="section-header" style="text-align:center;">
             <span class="section-label pixel-font">› e agora, o próximo passo:</span>
@@ -194,18 +683,29 @@
             Um lugar para finalmente praticar o seu inglês.<br><span class="dim-text">No seu tempo e do seu interesse.</span>
         </h2>
 
-        <div class="biome-grid" style="max-width:740px; margin:0 auto;">
+        <!-- Aviso do gate. So aparece enquanto #planos tem a classe .gated.
+             O JS la embaixo tira a classe quando a pessoa assiste o video OU
+             chega na secao da DEMONSTRACAO. -->
+        <div class="lock-veil">
+            <p class="lock-badge">O preço abre depois que você<br>entender o que tem aqui dentro.</p>
+            <p class="lock-sub" id="lockSub">assiste o vídeo, ou desce e lê a página</p>
+        </div>
+
+        <p class="partner-note pixel-font" id="partnerNote"></p>
+
+        <div class="biome-grid">
 
             <!-- LAC MENSAL -->
             <article class="biome-card">
                 <h3 class="biome-title pixel-font">LAC · mensal</h3>
-                <p class="biome-subtitle pixel-font">— Language Acquisition Club —</p>
+                <p class="biome-subtitle pixel-font">— Lang. Acq. Club —</p>
                 <p class="biome-price body-font">R$ 94,90 <span class="biome-period">/mês</span></p>
                 <ul class="biome-list">
-                    <li>O lugar para você adquirir o inglês como uma ferramenta.</li>
-                    <li>Classroom com uma trilha de aprendizado para usar o inglês hoje.</li>
-                    <li>Atividades semanais para trabalhar o inglês em todos os sentidos.</li>
-                    <li>Lista de Espera para as vagas de Conversation Classes!</li>
+                    <li>O lugar pra você usar o inglês que já tem.</li>
+                    <li>Classroom com 4 atividades por semana: leitura, escuta, escrita e fala.</li>
+                    <li>Correção individual, com o motivo de cada mudança.</li>
+                    <li>Uma aula de conversação por mês, marcada por você.</li>
+                    <li>Lista de espera para as vagas semanais de Conversation Class.</li>
                 </ul>
                 <p class="biome-pitch">O jeito mais tranquilo de se adquirir vivência com o inglês. Para quem precisa do compromisso, mas não tem o tempo.</p>
                 <a href="https://buy.stripe.com/eVqbJ2d9YbNU4fJcIebfO09" class="btn-secondary biome-cta pixel-font" target="_blank" rel="noopener" data-umami-event="lac_checkout_mensal">› Comece agora</a>
@@ -214,14 +714,15 @@
 
             <!-- LAC ANUAL -->
             <article class="biome-card biome-featured">
+                <div class="biome-banner pixel-font">★ MAIS ESCOLHIDO</div>
                 <h3 class="biome-title pixel-font">LAC · anual</h3>
-                <p class="biome-subtitle pixel-font">— LAC + Personal Curriculum —</p>
+                <p class="biome-subtitle pixel-font">— W/ Personal Curriculum —</p>
                 <p class="biome-price body-font">R$ 949,90 <span class="biome-period">/ano</span></p>
                 <ul class="biome-list">
-                    <li>Todo mês eu te mostro 4 temas, mas no ano eu te mostro todos.</li>
+                    <li>Tudo do mensal, o ano inteiro.</li>
+                    <li>Personal Curriculum: a gente senta e monta o roteiro do seu ano.</li>
                     <li>Dezenas de assuntos da atualidade pra usar o inglês.</li>
-                    <li>Prioridade total para as vagas de Conversation Classes.</li>
-                    <li>Assim que começar, eu crio com você um roteiro personalizado, com assuntos e tópicos para o seu uso especifico!</li>
+                    <li>Prioridade total para as vagas semanais de Conversation Class.</li>
                 </ul>
                 <p class="biome-pitch">O jeito mais completo de começar a sua vivência com o inglês. Para quem quer o caminho todo de uma vez.</p>
                 <a href="https://buy.stripe.com/4gM00k4Ds5pw4fJeQmbfO0b" class="btn-primary biome-cta pixel-font" target="_blank" rel="noopener" data-umami-event="lac_checkout_anual">› Receba o plano agora</a>
@@ -246,59 +747,88 @@
     <span>Falar com o Heitor</span>
 </a>
 
-<!-- ==================== VSL GATE: libera a oferta após X segundos de vídeo ==================== -->
+<!-- ==================== VSL GATE ==========================================
+     O preco e o botao ficam borrados ate a pessoa ter visto o argumento. O
+     resto do card continua legivel de proposito: da pra comparar os planos,
+     so nao da pra comprar no impulso.
+
+     Duas chaves, a primeira que virar abre:
+       1. VIDEO  — assistiu ate UNLOCK_AT segundos DE VERDADE (pular pra frente
+                   nao conta; rebobinar pode).
+       2. LEITURA — chegou na secao #demo, ou seja, passou pelo diagnostico, pelo
+                   exemplo, pelo mecanismo, pelas quatro ferramentas e pelo
+                   "o que a LAC nao e". Quem le em vez de assistir nao fica preso.
+
+     UNLOCK_AT esta calibrado pro video ATUAL (assets/a-diferenca.mp4). Quando
+     o corte novo entrar, poe aqui o segundo do bloco `W`, que e onde a LAC
+     aparece na tela.
+     ======================================================================== -->
 <script>
 (function(){
     var video = document.getElementById('heroVideo');
     var gate  = document.getElementById('planos');
     var cue   = document.getElementById('postCue');
     var sub   = document.getElementById('lockSub');
-    if (!video || !gate) return;
+    var demo  = document.getElementById('demo');
+    if (!gate) return;
 
-    // AJUSTE AQUI: o segundo em que VOCÊ entra na LAC/comunidade no corte final.
-    var UNLOCK_AT = 78;
+    var UNLOCK_AT = 78;          // segundos de video assistidos de verdade
+    var unlocked  = false;
+    var maxWatched = 0;
 
-    var maxWatched = 0, unlocked = true;   /* pagina de parceiro: a oferta nunca trava */
-    // marcos de progresso ANTES do unlock (78s): mostram ONDE a galera larga.
-    // disparam UMA vez cada, baseados no ponto mais longe assistido de verdade.
+    // marcos de progresso: mostram ONDE a galera larga o video.
     var marks = [
         { t: 10, name: 'video_10s', done: false },
         { t: 45, name: 'video_45s', done: false },
         { t: 70, name: 'video_70s', done: false }
     ];
-    /* gate desativado nesta pagina: trafego de parceiro ja chega aquecido */
 
-    function track(name){ try { if (window.umami) umami.track(name); } catch(e){} }
+    function track(name, data){ try { if (window.umami) umami.track(name, data); } catch(e){} }
 
-    function unlock(){
+    function unlock(via){
         if (unlocked) return;
         unlocked = true;
         gate.classList.remove('gated');
-        if (cue) cue.innerHTML = '↓ <span class="accent">é assim que você começa hoje:</span>';
-        track('offer_unlocked');
+        if (cue) cue.innerHTML = '\u2193 <span class="accent">agora voc\u00ea j\u00e1 sabe o que tem aqui dentro.</span>';
+        track('offer_unlocked', { via: via });
     }
 
-    video.addEventListener('timeupdate', function(){
-        if (video.currentTime > maxWatched) maxWatched = video.currentTime;
-        marks.forEach(function(m){
-            if (!m.done && maxWatched >= m.t) { m.done = true; track(m.name); }
+    // ---- chave 2: leitura. Chegou na DEMONSTRACAO = leu o caminho todo. ----
+    if (demo && 'IntersectionObserver' in window) {
+        var ioDemo = new IntersectionObserver(function(entries){
+            if (entries[0].isIntersecting) { unlock('leitura'); ioDemo.disconnect(); }
+        }, { threshold: 0.15 });
+        ioDemo.observe(demo);
+    } else if (!demo) {
+        unlock('sem_demo');       // a secao sumiu: nao trava a venda por bug de layout
+    }
+
+    // ---- chave 1: video ----
+    if (video) {
+        video.addEventListener('timeupdate', function(){
+            if (video.currentTime > maxWatched) maxWatched = video.currentTime;
+            marks.forEach(function(m){
+                if (!m.done && maxWatched >= m.t) { m.done = true; track(m.name); }
+            });
+            if (maxWatched >= UNLOCK_AT) { unlock('video'); return; }
+            if (sub && !unlocked) {
+                sub.textContent = 'abre em ~' + Math.ceil(UNLOCK_AT - maxWatched) + 's de v\u00eddeo, ou desce e l\u00ea a p\u00e1gina';
+            }
         });
-        if (maxWatched >= UNLOCK_AT) { unlock(); return; }
-        if (sub) sub.textContent = 'abre em ~' + Math.ceil(UNLOCK_AT - maxWatched) + 's de vídeo';
-    });
 
-    // impede pular pra frente pra furar o gate (rebobinar é permitido)
-    video.addEventListener('seeking', function(){
-        if (!unlocked && video.currentTime > maxWatched + 0.5) video.currentTime = maxWatched;
-    });
+        // nao deixa pular pra frente pra furar o gate (rebobinar e permitido)
+        video.addEventListener('seeking', function(){
+            if (!unlocked && video.currentTime > maxWatched + 0.5) video.currentTime = maxWatched;
+        });
+    }
 
-    // dispara UMA vez quando a oferta (travada) entra na tela: pularam o vídeo pra ver a oferta?
+    // dispara UMA vez quando a oferta entra na tela: pularam tudo pra ver o preco?
     if ('IntersectionObserver' in window) {
         var offerSeen = false;
         var io = new IntersectionObserver(function(entries){
             if (entries[0].isIntersecting && !offerSeen) {
                 offerSeen = true;
-                track('scroll_to_offer');
+                track('scroll_to_offer', { travado: unlocked ? 'nao' : 'sim' });
                 io.disconnect();
             }
         }, { threshold: 0.3 });
@@ -344,19 +874,21 @@
 })();
 </script>
 
-<!-- ==================== CARROSSEL DE PLANOS: setas pra avançar/voltar (swipe também funciona) ==================== -->
+<!-- ==================== CARROSSEL: setas pra avançar/voltar (swipe também funciona) ====================
+     Vale pros planos E pro carrossel de prints da DEMONSTRAÇÃO: os dois usam .biome-grid.
+     ======================================================================================== -->
 <script>
 (function(){
-    var tracks = document.querySelectorAll('.biome-grid');
+    var tracks = document.querySelectorAll('.biome-grid, .shot-grid');
     tracks.forEach(function(track){
         var nav  = document.createElement('div');
         nav.className = 'carousel-nav';
         var prev = document.createElement('button');
         prev.type = 'button'; prev.className = 'carousel-btn pixel-font';
-        prev.setAttribute('aria-label', 'Plano anterior'); prev.textContent = '\u2039';
+        prev.setAttribute('aria-label', 'Anterior'); prev.textContent = '‹';
         var next = document.createElement('button');
         next.type = 'button'; next.className = 'carousel-btn pixel-font';
-        next.setAttribute('aria-label', 'Pr\u00f3ximo plano'); next.textContent = '\u203a';
+        next.setAttribute('aria-label', 'Próximo'); next.textContent = '›';
         nav.appendChild(prev); nav.appendChild(next);
         track.parentNode.insertBefore(nav, track.nextSibling);
 
@@ -386,11 +918,24 @@
 <!-- ==================== MARCADOR DE PARCEIRO (so trafego; comissao sai do Stripe) ==================== -->
 <script>
 (function(){
+    /* cada parceiro: o texto que aparece em cima dos planos. cupom aplicado no checkout do Stripe. */
+    var PARCEIROS = {
+        noborders: 'Você veio pelo NoBorders. Use o cupom <strong>NOBORDERS</strong> no checkout.',
+        mina:      'Você veio por indicação. O cupom aparece no checkout.'
+    };
+
     try {
         var p = new URLSearchParams(location.search).get('p');
         if (!p) return;
         p = p.toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 32);
         if (!p) return;
+
+        var note = document.getElementById('partnerNote');
+        if (note && PARCEIROS[p]) {
+            note.innerHTML = PARCEIROS[p];
+            note.classList.add('is-on');
+        }
+
         function fire(){ try { if (window.umami) umami.track('partner_view', { parceiro: p }); } catch (e) {} }
         if (window.umami) { fire(); } else { setTimeout(fire, 1500); }
     } catch (e) {}
