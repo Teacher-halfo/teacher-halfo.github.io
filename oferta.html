@@ -35,7 +35,7 @@
         .lp-hero-sub { color: var(--mist); font-size: 1.05rem; line-height: 1.55; margin: 0 0 24px; }
         .lp-hero-sub strong { color: var(--parchment); }
 
-        /* vídeo vertical — Heitor + cortes da LAC */
+        /* vídeo vertical — Heitor + cortes do LAC */
         .video-wrap { position: relative; line-height: 0; }
         .video-slot {
             position: relative; width: 100%; aspect-ratio: 9 / 16;
@@ -48,7 +48,7 @@
         .post-video-cue { text-align:center; color: var(--mist); font-family: var(--pixel-font); font-size: 0.85rem; margin: 22px 0 0; }
         .post-video-cue .accent { color: var(--sun); }
 
-        /* ===== VSL GATE — os planos ficam legíveis; só PREÇO e BOTÃO travam até a parte da LAC ===== */
+        /* ===== VSL GATE — os planos ficam legíveis; só PREÇO e BOTÃO travam até a parte do LAC ===== */
         .lock-veil { display: none; }
         .gated { position: relative; }
         /* trava SÓ os preços e os botões de pagamento — o resto do card fica legível pra pessoa comparar */
@@ -169,7 +169,7 @@
            index.html. `section-leaf` saiu: não existe na página principal, e era
            o que fazia esta página parecer outro site.
 
-           A ordem das faixas, de cima pra baixo:
+           A ordem das faixas, de cima para baixo:
              hero DARK · diagnóstico PARCHMENT · exemplo DARK · mecanismo PARCHMENT
              · ferramentas DARK · o que não é PARCHMENT · demonstração DARK
              · sua semana PARCHMENT · e se não mudar DARK · planos PARCHMENT
@@ -248,7 +248,7 @@
            se um print vier com outra proporção, ele é cortado, não quebra a fileira. */
         /* O carrossel de prints tem mecanica propria, NAO herda a dos planos:
            os cards de plano ocupam 96% da tela no celular, e um print nessa
-           largura empurraria os outros pra fora do campo de visao. */
+           largura empurraria os outros para fora do campo de visao. */
         .shot-grid {
             display: flex; flex-wrap: nowrap; overflow-x: auto;
             scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
@@ -256,8 +256,66 @@
             align-items: flex-start; gap: 16px; padding: 8px 4px 26px;
         }
         .shot-grid::-webkit-scrollbar { display: none; }
+        /* DUAS FORMAS de slide, e so duas. Uma forma repetindo e padrao;
+           cinco formas diferentes e bagunca, que foi o que quebrou antes.
+             .shot--desk  = captura de computador, 4:3, exportada 1200x900
+             .shot--phone = captura de celular,    9:16, exportada 1080x1920
+           A largura muda por forma, a proporcao vem do ARQUIVO. */
         .shot-grid > * { flex: 0 0 300px; scroll-snap-align: start; }
-        @media (max-width: 600px) { .shot-grid > * { flex: 0 0 76%; } }
+        .shot-grid > .shot--desk  { flex: 0 0 470px; }
+        .shot-grid > .shot--phone { flex: 0 0 270px; }
+        @media (max-width: 600px) {
+            .shot-grid > .shot--desk  { flex: 0 0 94%; }
+            .shot-grid > .shot--phone { flex: 0 0 58%; }
+        }
+
+        /* ====== AMPLIAR ==========================================================
+           O problema que isso resolve: uma captura de COMPUTADOR encolhida pra
+           caber num celular fica ilegivel, e uma captura de CELULAR num monitor
+           fica minuscula. As duas continuam no carrossel pra todo mundo, e
+           qualquer uma abre em tamanho real com um toque. Ninguem perde uma tela
+           por causa do aparelho que esta usando.
+           ====================================================================== */
+        .shot img { cursor: zoom-in; }
+        .shot-lightbox { position: fixed; inset: 0; z-index: 90; display: none; background: rgba(15,13,10,0.95); }
+        .shot-lightbox.is-on { display: block; }
+        .shot-lightbox .sl-body {
+            position: absolute; inset: 0; overflow: auto;
+            display: flex; align-items: flex-start; justify-content: center;
+            padding: 58px 12px 28px;
+        }
+        /* no celular a imagem entra em tamanho real e a caixa rola nos dois eixos:
+           e assim que da pra LER um print de computador num telefone. */
+        .shot-lightbox .sl-body img {
+            display: block; width: auto; max-width: none; height: auto;
+            border: 2px solid var(--brand-yellow); background: var(--ink-soft);
+        }
+        @media (min-width: 900px) {
+            .shot-lightbox .sl-body { align-items: center; }
+            .shot-lightbox .sl-body img { max-width: 94vw; max-height: 88vh; }
+        }
+        .shot-lightbox .sl-close {
+            position: absolute; top: 12px; right: 12px; z-index: 2; cursor: pointer;
+            font-family: var(--pixel-font); font-weight: normal; font-size: 1.05rem; line-height: 1;
+            color: var(--ink); background: var(--brand-yellow);
+            border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
+            padding: 9px 13px;
+        }
+        .shot-lightbox .sl-tip {
+            position: absolute; top: 18px; left: 14px; z-index: 2; margin: 0;
+            font-family: var(--pixel-font); font-weight: normal; font-size: 0.68rem;
+            color: var(--gray-light); letter-spacing: 0.04em;
+        }
+        /* barrinha de navegador: o leitor le "computador" antes de ler a legenda */
+        .shot-chrome {
+            display: flex; align-items: center; gap: 6px; padding: 7px 10px;
+            background: var(--gray-deep); border-bottom: 2px solid var(--brand-yellow);
+        }
+        .shot-chrome i { display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--gray-mid); }
+        .shot-chrome span {
+            font-family: var(--pixel-font); font-weight: normal; font-size: 0.6rem;
+            color: var(--gray-light); letter-spacing: 0.04em; margin-left: 6px;
+        }
         .shot {
             background: var(--ink-soft); border: 2px solid var(--brand-yellow);
             box-shadow: 6px 6px 0 rgba(0,0,0,0.45);
@@ -265,7 +323,7 @@
         /* SEM proporcao forcada. A imagem entra na altura que ela tem.
            Quem garante a fileira alinhada e o ARQUIVO: todo print e 9:16
            (1080x1920), entao a 300px de largura todos dao 533px de altura
-           sozinhos. Travar aspect-ratio aqui so serve pra cortar (cover) ou
+           sozinhos. Travar aspect-ratio aqui so serve para cortar (cover) ou
            deixar tarja preta (contain) quando um print vem fora do formato,
            e os dois ficam piores do que a altura natural. Se um print sair
            diferente, conserta o print, nao o CSS. */
@@ -360,7 +418,7 @@
             ESTUDAR INGLÊS <span class="accent">SEM PRÁTICA</span> É ACUMULAR CONHECIMENTO QUE VOCÊ <span class="accent">NUNCA</span> VAI USAR.
         </h1>
         <p class="hero-sub lp-hero-sub">
-            Por que você ainda não ficou fluente, o motivo de você travar e o que a gente pode fazer agora para mudar a sua situação.
+            O que a gente pode fazer agora, o motivo de você travar e o porquê você ainda não ficou fluente
         </p>
 
         <p class="post-video-cue" id="postCue">↓ É isso que eu vou te mostrar, <span class="accent">está tudo escrito aqui embaixo.</span></p>
@@ -373,14 +431,14 @@
         <h2 class="section-title pixel-font lp-title">Você trava, mas não é falta de conhecimento.</h2>
 
         <p class="lp-body">
-            Você sabe a palavra. Entendeu tudo que a pessoa falou. E mesmo assim a frase não sai na hora.
+            Você sabe a palavra, entendeu tudo que a pessoa falou, e mesmo assim a frase não sai na hora.
             Parece que falta uma ponte entre o que você sabe e o que você consegue produzir.
         </p>
         <p class="lp-body">
-            Isso não é vergonha. E não é falta de estudo.
+            Isso não é vergonha, nem é falta de estudo.
         </p>
         <p class="lp-body">
-            Mas isso te faz achar que precisa estudar mais. Mais gramática, mais vocabulário, mais um curso.
+            Mas isso te faz achar que precisa estudar mais gramática, mais vocabulário, mais um curso.
             Só que você já estuda faz anos. Se só estudar resolvesse, você já tinha resolvido.
         </p>
 
@@ -399,7 +457,7 @@
 
         <div class="flip">
             <p class="flip-line flip-wrong">I have 24 years<span class="flip-caret">_</span></p>
-            <p class="flip-gap">um segundo de nada</p>
+            <p class="flip-gap">um segundo</p>
             <p class="flip-line flip-right">I AM 24 years old!</p>
         </div>
 
@@ -413,7 +471,7 @@
             depois, quando você já falou.
         </p>
         <p class="lp-punch">
-            Você não perdeu pra falta de estudo. Você perdeu pra velocidade.
+            Você não perdeu para falta de estudo. Você perdeu para velocidade.
         </p>
     </div>
 </section>
@@ -422,7 +480,7 @@
 <section class="section section-parchment" id="mecanismo">
     <div class="container narrow">
         <p class="lp-kicker">› POR QUE ISSO ACONTECE</p>
-        <h2 class="section-title pixel-font lp-title">O problema não é que falta conhecimento. É o caminho que esse conhecimento percorre pra sair da sua cabeça.</h2>
+        <h2 class="section-title pixel-font lp-title">O problema não é que falta conhecimento. É o caminho que esse conhecimento percorre para sair da sua cabeça.</h2>
 
         <p class="lp-body">
             Assistir série em inglês, ouvir música, jogar um jogo, tudo isso é consumo. Consumo é ótimo, e você
@@ -437,7 +495,7 @@
         </p>
         <p class="lp-body">
             Em que momento você produziu inglês? A frase que você disse não foi criada pelo seu cérebro, alguém
-            disse ela pra você.
+            disse ela para você.
         </p>
         <p class="lp-body">
             Por quanto tempo você realmente produziu inglês? Um minuto? Dois? O resto foi consumo.
@@ -451,7 +509,7 @@
 <section class="section section-dark" id="dentro">
     <div class="container narrow">
         <p class="lp-kicker">› ONDE ISSO ACONTECE</p>
-        <h2 class="section-title pixel-font section-title-dark lp-title">A LAC não é um curso. É uma comunidade pra você usar o inglês que já tem, pra conseguir chegar na fluência.</h2>
+        <h2 class="section-title pixel-font section-title-dark lp-title">O LAC não é um curso. É uma comunidade para você usar o inglês que já tem, para conseguir chegar na fluência.</h2>
 
         <p class="lp-body">
             Quando você começa, você recebe acesso às quatro ferramentas que a gente usa toda semana.
@@ -492,7 +550,7 @@
                 <span class="door-num">04</span>
                 <h3>Uma aula de conversação, só sua</h3>
                 <p>
-                    Trinta minutos comigo, e quem marca é você, quando quiser. Serve pra treinar exatamente o
+                    Trinta minutos comigo, e quem marca é você, quando quiser. Serve para treinar exatamente o
                     que você não conseguiu produzir naquele mês.
                 </p>
             </div>
@@ -504,7 +562,7 @@
                     É um documento seu. Ele abre com o seu nível, a sua faixa de vocabulário e quanto de inglês
                     você precisa por semana. Depois vem uma tarefa por página: por que ela existe, como fazer, e
                     onde mandar o resultado. Cada tarefa parte de uma coisa que você já assiste, já lê ou já
-                    escuta, e o que você produz chega até mim no Discord ou no WhatsApp pra eu checar com você.
+                    escuta, e o que você produz chega até mim no Discord ou no WhatsApp para eu checar com você.
                 </p>
                 <p>
                     A gente senta e monta o roteiro do seu ano inteiro, com os temas e os tópicos do seu uso
@@ -517,13 +575,13 @@
     </div>
 </section>
 
-<!-- ==================== E · O QUE A LAC NÃO É · PARCHMENT ==================== -->
+<!-- ==================== E · O QUE O LAC NÃO É · PARCHMENT ==================== -->
 <section class="section section-parchment" id="naoe">
     <div class="container narrow">
-        <h2 class="section-title pixel-font lp-title">O que a LAC não é</h2>
+        <h2 class="section-title pixel-font lp-title">O que o LAC não é</h2>
 
         <ul class="nots">
-            <li>Não é um curso de gramática. Não tem trilha de tempos verbais pra você decorar.</li>
+            <li>Não é um curso de gramática. Não tem trilha de tempos verbais para você decorar.</li>
             <li>Não é aula gravada toda semana. É uma aula ao vivo por mês, e quem marca é você, quando quiser.</li>
         </ul>
 
@@ -541,83 +599,65 @@
         <div class="section-header" style="text-align:center;">
             <span class="section-label pixel-font">› DEMONSTRAÇÃO</span>
         </div>
-        <h2 class="section-title pixel-font section-title-dark" style="text-align:center;">Veja a LAC por dentro</h2>
-        <p class="shot-hint">← arraste para o lado para ver todas as telas →</p>
+        <h2 class="section-title pixel-font section-title-dark" style="text-align:center;">Veja o LAC por dentro</h2>
+        <p class="shot-hint">← arraste para o lado · toque numa tela para ampliar →</p>
 
         <div class="shot-grid" style="max-width:1000px; margin:0 auto;">
 
-            <figure class="shot" style="margin:0;">
+            <figure class="shot shot--desk" style="margin:0;">
+                <div class="shot-chrome"><i></i><i></i><i></i><span>classroom.google.com</span></div>
                 <img src="assets/lac-01-temas.png" alt="A lista de temas de cada semana no Classroom" loading="lazy">
                 <figcaption class="shot-cap">Um tema novo toda semana</figcaption>
             </figure>
 
-            <figure class="shot" style="margin:0;">
-                <img src="assets/lac-02-semana.png" alt="Uma semana aberta no Classroom com as quatro atividades" loading="lazy">
+            <figure class="shot shot--phone" style="margin:0;">
+                <img src="assets/lac-02-semana.png" alt="A semana aberta no celular, com as quatro atividades" loading="lazy">
                 <figcaption class="shot-cap">As quatro atividades da semana</figcaption>
             </figure>
 
-            <figure class="shot" style="margin:0;">
-                <img src="assets/lac-03-newsletter.png" alt="A newsletter de segunda, com as expressões marcadas" loading="lazy">
+            <figure class="shot shot--phone" style="margin:0;">
+                <img src="assets/lac-03-newsletter.png" alt="A newsletter de segunda no celular, com as expressoes marcadas" loading="lazy">
                 <figcaption class="shot-cap">A newsletter de segunda</figcaption>
             </figure>
 
-            <!-- [R] leitura — assets/lac-04-task-R.png
-            <figure class="shot" style="margin:0;">
+            <figure class="shot shot--desk" style="margin:0;">
+                <div class="shot-chrome"><i></i><i></i><i></i><span>docs.google.com/forms</span></div>
                 <img src="assets/lac-04-task-R.png" alt="A atividade de leitura da semana" loading="lazy">
                 <figcaption class="shot-cap">[R] A atividade de leitura</figcaption>
             </figure>
-            -->
 
-            <!-- [L] escuta — assets/lac-05-task-L.png
-            <figure class="shot" style="margin:0;">
-                <img src="assets/lac-05-task-L.png" alt="A atividade de escuta da semana" loading="lazy">
-                <figcaption class="shot-cap">[L] A atividade de escuta</figcaption>
-            </figure>
-            -->
-
-            <figure class="shot" style="margin:0;">
+            <figure class="shot shot--desk" style="margin:0;">
+                <div class="shot-chrome"><i></i><i></i><i></i><span>docs.google.com/forms</span></div>
                 <img src="assets/lac-06-task-W.png" alt="A atividade de escrita da semana" loading="lazy">
                 <figcaption class="shot-cap">[W] A atividade de escrita</figcaption>
             </figure>
 
-            <!-- [S] fala — assets/lac-07-task-S.png
-            <figure class="shot" style="margin:0;">
-                <img src="assets/lac-07-task-S.png" alt="A atividade de fala da semana" loading="lazy">
+            <figure class="shot shot--phone" style="margin:0;">
+                <img src="assets/lac-07-task-S.png" alt="A atividade de fala da semana, no celular" loading="lazy">
                 <figcaption class="shot-cap">[S] A atividade de fala</figcaption>
             </figure>
-            -->
 
-            <figure class="shot" style="margin:0;">
-                <img src="assets/lac-08-conversation.png" alt="A agenda pra marcar a aula de conversação do mês" loading="lazy">
-                <figcaption class="shot-cap">Marcando a sua aula de conversação</figcaption>
+            <figure class="shot shot--phone" style="margin:0;">
+                <img src="assets/lac-08-conversation.png" alt="A agenda pra marcar a aula de conversacao do mes" loading="lazy">
+                <figcaption class="shot-cap">Marcando a sua aula de conversacao</figcaption>
             </figure>
 
-            <!-- correção — assets/lac-09-correcao.png
-            <figure class="shot" style="margin:0;">
-                <img src="assets/lac-09-correcao.png" alt="Uma atividade corrigida, com o motivo de cada mudança" loading="lazy">
+            <figure class="shot shot--desk" style="margin:0;">
+                <div class="shot-chrome"><i></i><i></i><i></i><span>classroom.google.com</span></div>
+                <img src="assets/lac-09-correcao.png" alt="Uma atividade corrigida, com o motivo de cada mudanca" loading="lazy">
                 <figcaption class="shot-cap">A correção, com o motivo</figcaption>
             </figure>
-            -->
 
-            <!-- whatsapp — assets/lac-10-whatsapp.png
-            <figure class="shot" style="margin:0;">
-                <img src="assets/lac-10-whatsapp.png" alt="O feedback chegando no WhatsApp" loading="lazy">
-                <figcaption class="shot-cap">O feedback no seu WhatsApp</figcaption>
-            </figure>
-            -->
-
-            <!-- discord — assets/lac-11-discord.png
-            <figure class="shot" style="margin:0;">
-                <img src="assets/lac-11-discord.png" alt="Uma prática extra publicada no Discord" loading="lazy">
+            <figure class="shot shot--phone" style="margin:0;">
+                <img src="assets/lac-11-discord.png" alt="Uma pratica extra publicada no Discord" loading="lazy">
                 <figcaption class="shot-cap">A prática extra no Discord</figcaption>
             </figure>
-            -->
 
         </div>
 
         <p class="shot-reassure">
-            Tudo isso abre no celular. As atividades são curtas e você pode fazer em qualquer lugar. Não tem
-            horário obrigatório, só o seu compromisso de participar toda semana.
+            Celular, computador ou tablet: abre em qualquer um. As atividades são curtas e você pode fazer em
+            qualquer lugar. Não tem horário obrigatório, só o seu compromisso de participar toda semana.
         </p>
 
         <a href="#semana" class="cta-down" data-umami-event="cta_down_demo">› como é a sua semana ↓</a>
@@ -628,27 +668,27 @@
 <section class="section section-parchment" id="semana">
     <div class="container narrow">
         <p class="lp-kicker">› NO SEU RITMO</p>
-        <h2 class="section-title pixel-font lp-title">Como é a sua semana na LAC</h2>
+        <h2 class="section-title pixel-font lp-title">Como é a sua semana no LAC</h2>
 
         <ul class="rhythm">
             <li>
                 <span class="when">SEGUNDA</span>
-                <span class="what">Eu te envio a newsletter, com as expressões marcadas. Isso te mostra o que você precisa entender pra conseguir praticar aquela semana na comunidade.</span>
+                <span class="what">Eu te envio a newsletter com as expressões marcadas. Isso te mostra o que você precisa entender para conseguir praticar aquela semana na comunidade.</span>
             </li>
             <li>
                 <span class="when">DURANTE A SEMANA</span>
-                <span class="what">As quatro atividades chegam, pra você acessar no seu tempo, na ordem que você quiser. O objetivo delas é te mostrar onde o seu inglês consegue chegar, e como fazer ele chegar ainda mais longe.</span>
+                <span class="what">As quatro atividades chegam para você acessar no seu tempo, na ordem que você quiser. O objetivo delas é te mostrar onde o seu inglês consegue chegar, e como fazer ele chegar ainda mais longe.</span>
             </li>
             <li>
                 <span class="when">DEPOIS DE CADA UMA</span>
-                <span class="what">A correção, com o motivo de cada mudança feita por mim. O que você produz só está errado quando não consegue ser compreendido, o que eu faço é te ouvir e entender onde a sua comunicação para de ser entendida.</span>
+                <span class="what">A correção com o motivo de cada mudança feita por mim. O que você produz só está errado quando não consegue ser compreendido, o que eu faço é te ouvir e entender onde a sua comunicação para de ser entendida.</span>
             </li>
             <li>
                 <span class="when">UMA VEZ POR MÊS</span>
-                <span class="what">A sua aula de conversação, marcada por você, no horário que você quiser. Através dessa aula, eu te explico exatamente o que aconteceu no seu uso, e o que fazer pra desenvolver a sua habilidade linguística.</span>
+                <span class="what">A sua aula de conversação, marcada por você, no horário que você quiser. Através dessa aula, eu te explico exatamente o que aconteceu no seu uso, e o que fazer para desenvolver a sua habilidade linguística.</span>
             </li>
             <li>
-                <span class="when">QUANDO QUISER USAR O SEU DIA PRA APRENDER</span>
+                <span class="when">QUANDO QUISER USAR O SEU DIA PARA APRENDER</span>
                 <span class="what">No Discord, você acessa a prática extra e a comunidade. Lá você usa as séries, filmes, músicas, jogos, e tudo aquilo que você já sabe que pode te ensinar, de uma forma onde isso realmente vira conhecimento adquirido.</span>
             </li>
         </ul>
@@ -661,13 +701,13 @@
         <h2 class="section-title pixel-font section-title-dark lp-title">E se você não mudar nada?</h2>
 
         <ul class="costs">
-            <li>Você continua estudando, e continua travando na hora.</li>
+            <li>Você continua estudando e continua travando na hora.</li>
             <li>Continua entendendo tudo e não conseguindo responder.</li>
-            <li>Continua adiando a conversa que você quer ter, pro dia em que você "estiver pronto".</li>
+            <li>Continua adiando a conversa que você quer ter, para o dia em que você "estiver pronto".</li>
         </ul>
 
-        <p class="lp-body">O tempo, sozinho, não te faz falar. Mais um curso também não.</p>
-        <p class="lp-punch">Você não precisa de mais estudo. Precisa de um lugar pra usar o que você já sabe.</p>
+        <p class="lp-body">O tempo, sozinho, não te faz falar. Outro curso também não.</p>
+        <p class="lp-punch">Você não precisa de mais estudo. Precisa de um lugar para usar o que você já sabe.</p>
 
         <a href="#planos" class="cta-down" data-umami-event="cta_down_semudar">› é isso que tem aqui ↓</a>
     </div>
@@ -701,7 +741,7 @@
                 <p class="biome-subtitle pixel-font">— Lang. Acq. Club —</p>
                 <p class="biome-price body-font">R$ 94,90 <span class="biome-period">/mês</span></p>
                 <ul class="biome-list">
-                    <li>O lugar pra você usar o inglês que já tem.</li>
+                    <li>O lugar para você usar o inglês que já tem.</li>
                     <li>Classroom com 4 atividades por semana: leitura, escuta, escrita e fala.</li>
                     <li>Correção individual, com o motivo de cada mudança.</li>
                     <li>Uma aula de conversação por mês, marcada por você.</li>
@@ -721,7 +761,7 @@
                 <ul class="biome-list">
                     <li>Tudo do mensal, o ano inteiro.</li>
                     <li>Personal Curriculum: a gente senta e monta o roteiro do seu ano.</li>
-                    <li>Dezenas de assuntos da atualidade pra usar o inglês.</li>
+                    <li>Dezenas de assuntos da atualidade para usar o inglês.</li>
                     <li>Prioridade total para as vagas semanais de Conversation Class.</li>
                 </ul>
                 <p class="biome-pitch">O jeito mais completo de começar a sua vivência com o inglês. Para quem quer o caminho todo de uma vez.</p>
@@ -749,18 +789,18 @@
 
 <!-- ==================== VSL GATE ==========================================
      O preco e o botao ficam borrados ate a pessoa ter visto o argumento. O
-     resto do card continua legivel de proposito: da pra comparar os planos,
-     so nao da pra comprar no impulso.
+     resto do card continua legivel de proposito: da para comparar os planos,
+     so nao da para comprar no impulso.
 
      Duas chaves, a primeira que virar abre:
-       1. VIDEO  — assistiu ate UNLOCK_AT segundos DE VERDADE (pular pra frente
+       1. VIDEO  — assistiu ate UNLOCK_AT segundos DE VERDADE (pular para frente
                    nao conta; rebobinar pode).
        2. LEITURA — chegou na secao #demo, ou seja, passou pelo diagnostico, pelo
                    exemplo, pelo mecanismo, pelas quatro ferramentas e pelo
-                   "o que a LAC nao e". Quem le em vez de assistir nao fica preso.
+                   "o que o LAC nao e". Quem le em vez de assistir nao fica preso.
 
      UNLOCK_AT esta calibrado pro video ATUAL (assets/a-diferenca.mp4). Quando
-     o corte novo entrar, poe aqui o segundo do bloco `W`, que e onde a LAC
+     o corte novo entrar, poe aqui o segundo do bloco `W`, que e onde o LAC
      aparece na tela.
      ======================================================================== -->
 <script>
@@ -816,13 +856,13 @@
             }
         });
 
-        // nao deixa pular pra frente pra furar o gate (rebobinar e permitido)
+        // nao deixa pular para frente para furar o gate (rebobinar e permitido)
         video.addEventListener('seeking', function(){
             if (!unlocked && video.currentTime > maxWatched + 0.5) video.currentTime = maxWatched;
         });
     }
 
-    // dispara UMA vez quando a oferta entra na tela: pularam tudo pra ver o preco?
+    // dispara UMA vez quando a oferta entra na tela: pularam tudo para ver o preco?
     if ('IntersectionObserver' in window) {
         var offerSeen = false;
         var io = new IntersectionObserver(function(entries){
@@ -853,7 +893,7 @@
     if (btn) {
         btn.addEventListener('click', function(){
             v.muted = false;
-            v.currentTime = 0;       // recomeça pra ouvir o início com som
+            v.currentTime = 0;       // recomeça para ouvir o início com som
             v.play();
             btn.classList.add('is-hidden');
             try { if (window.umami) umami.track('video_unmuted'); } catch(e){}
@@ -874,7 +914,7 @@
 })();
 </script>
 
-<!-- ==================== CARROSSEL: setas pra avançar/voltar (swipe também funciona) ====================
+<!-- ==================== CARROSSEL: setas para avançar/voltar (swipe também funciona) ====================
      Vale pros planos E pro carrossel de prints da DEMONSTRAÇÃO: os dois usam .biome-grid.
      ======================================================================================== -->
 <script>
@@ -911,6 +951,55 @@
         refresh();
         track.addEventListener('scroll', refresh, { passive: true });
         window.addEventListener('resize', refresh);
+    });
+})();
+</script>
+
+<!-- ==================== AMPLIAR UMA TELA DO CARROSSEL ====================
+     Clique ou toque em qualquer print abre ele em tamanho real. No celular a
+     caixa rola nos dois eixos, que e o unico jeito de ler uma captura de
+     computador num telefone. Esc ou toque fora fecha.
+     ======================================================================= -->
+<script>
+(function(){
+    var shots = document.querySelectorAll('.shot img');
+    if (!shots.length) return;
+
+    var ov = document.createElement('div');
+    ov.className = 'shot-lightbox';
+    ov.innerHTML = '<p class="sl-tip">tamanho real \u00b7 arraste pra ler</p>' +
+                   '<button type="button" class="sl-close" aria-label="Fechar">\u00d7</button>' +
+                   '<div class="sl-body"><img alt=""></div>';
+    document.body.appendChild(ov);
+
+    var big  = ov.querySelector('img');
+    var body = ov.querySelector('.sl-body');
+
+    function abrir(src, alt, nome){
+        big.src = src; big.alt = alt || '';
+        ov.classList.add('is-on');
+        document.body.style.overflow = 'hidden';
+        body.scrollTop = 0; body.scrollLeft = 0;
+        try { if (window.umami) umami.track('shot_zoom', { tela: nome }); } catch(e){}
+    }
+    function fechar(){
+        ov.classList.remove('is-on');
+        big.removeAttribute('src');
+        document.body.style.overflow = '';
+    }
+
+    shots.forEach(function(im){
+        im.addEventListener('click', function(){
+            var nome = (im.getAttribute('src') || '').split('/').pop();
+            abrir(im.currentSrc || im.src, im.alt, nome);
+        });
+    });
+
+    ov.addEventListener('click', function(e){
+        if (e.target === ov || e.target === body || e.target.className === 'sl-close') fechar();
+    });
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape' || e.key === 'Esc') fechar();
     });
 })();
 </script>
