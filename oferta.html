@@ -266,7 +266,9 @@
         .shot-grid > .shot--phone { flex: 0 0 270px; }
         @media (max-width: 600px) {
             .shot-grid > .shot--desk  { flex: 0 0 94%; }
-            .shot-grid > .shot--phone { flex: 0 0 58%; }
+            /* 78, nao 58: a 58% cabiam dois celulares na tela ao mesmo tempo e
+               nenhum dos dois dava pra ler. Um de cada vez, grande. */
+            .shot-grid > .shot--phone { flex: 0 0 78%; }
         }
 
         /* ====== AMPLIAR ==========================================================
